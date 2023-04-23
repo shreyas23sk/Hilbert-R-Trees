@@ -13,6 +13,7 @@ struct Rect { // top_left == bottom_right in case of a single 2D point (degenera
     Point bottom_left;
 };
 
+typedef struct Node* NODE;
 typedef struct Entry Entry;
 struct Entry {
     Rect MBR; // minimum bounding rectangle for all the child nodes of this entry
@@ -20,7 +21,7 @@ struct Entry {
     int LHV; // largest hilbert value of data rectangles of the subtree (NOT MBR)
 };
 
-typedef struct Node* NODE {
+struct Node {
     Entry all_entries[4];
 };
 
