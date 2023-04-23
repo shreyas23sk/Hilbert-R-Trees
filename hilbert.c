@@ -41,5 +41,5 @@ int get_lhv(Entry e) { // UNTESTED
         }
     }
 
-    return hv;
+    return lhv;
 }
