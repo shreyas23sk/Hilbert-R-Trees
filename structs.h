@@ -8,15 +8,30 @@ struct Point{
 };
 
 typedef struct Rect Rect;
-struct Rect {
-    Point top_left;
+struct Rect { // top_left == bottom_right in case of a single 2D point (degenerate rectangle)
     Point top_right;
+    Point bottom_left;
 };
 
-// page 4, sec 3.1
-typedef struct Node* NODE;
-struct Node {
+typedef struct Entry Entry;
+struct Entry {
     Rect MBR; // minimum bounding rectangle for all the child nodes of this entry
     NODE child;
     int LHV; // largest hilbert value of data rectangles of the subtree (NOT MBR)
 };
+
+typedef struct Node* NODE {
+    Entry all_entries[4];
+};
+
+// calculate Hilbert Value of the MID-POINT of data rectangles
+// but data rectangles here are only single 2D points
+int calculate_hilbert_value(Point);
+
+// obtain the LHV of a particular entry 
+//by taking the maximum LHV from the entries of the child node
+int get_lhv(Entry);
+
+// since all leaf nodes in the structure to be implemented are degenerate rectangles,
+// we can simply return the Point if found, NULL if not.
+Point search_R_Tree(NODE, Point);
