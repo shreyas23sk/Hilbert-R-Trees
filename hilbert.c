@@ -33,27 +33,11 @@ int xy2d(int n, int x, int y)
     return d;
 }
 
-int calculate_hilbert_value(Point p)
+int calculate_hilbert_value(Rect r)
 {
-    return xy2d(20, p.x, p.y);
+    return xy2d(20, (r.top_right.x + r.bottom_left.x)/2 , (r.top_right.y + r.bottom_left.y)/2);
 }
 
-int get_lhv(ENTRY e)
-{ // UNTESTED
-    int lhv = 0;
-    NODE c = e->child;
-    for (int i = 0; i < 4; i++)
-    {
-        if (c->all_entries[i] != NULL)
-        {
-            int hv = calculate_hilbert_value(c->all_entries[i]->MBR.bottom_left);
-            if (hv > lhv)
-                lhv = hv;
-        }
-    }
-
-    return lhv;
-}
 
 bool isLeaf(NODE n)
 {
@@ -67,6 +51,24 @@ bool isLeaf(NODE n)
             return false;
     }
     return true;
+}
+
+void set_lhv(ENTRY e)
+{ // UNTESTED
+    NODE n = e->child;
+
+    if(n == NULL) {
+        e->LHV = calculate_hilbert_value(e->MBR); 
+    } else {
+        int new_lhv = 0;
+        for(int i = 0; i < 4; i++) {
+            if(n->all_entries[i]->LHV > new_lhv) {
+                new_lhv = n->all_entries[i]->LHV;
+            }
+        }
+
+        e->LHV = new_lhv;
+    }
 }
 
 bool intersects(Rect r, Rect w)

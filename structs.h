@@ -31,7 +31,7 @@ int calculate_hilbert_value(Point);
 
 // obtain the LHV of a particular entry 
 //by taking the maximum LHV from the entries of the child node
-int get_lhv(ENTRY);
+void set_lhv(ENTRY);
 
 // since all leaf nodes in the structure to be implemented are degenerate rectangles,
 // we can simply return the Point if found, NULL if not.
