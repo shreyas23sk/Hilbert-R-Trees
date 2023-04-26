@@ -82,8 +82,9 @@ bool intersects(Rect r, Rect w)
     return true;
 }
 
-Rect* search(NODE root, Rect w)
+Rect* search(HRT ht, Rect w)
 {
+    NODE root = ht->root;
     Stack *s = newStack();
     push(s, root);
     Rect arr[] = (Rect *)malloc(sizeof(int) * 20);

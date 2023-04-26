@@ -25,6 +25,12 @@ struct Node {
     ENTRY all_entries[4];
 };
 
+
+typedef struct HRTree* HRT;
+struct HRTree{
+    NODE root;
+};
+
 // calculate Hilbert Value of the MID-POINT of data rectangles
 // but data rectangles here are only single 2D points
 int calculate_hilbert_value(Point);
@@ -35,4 +41,10 @@ void set_lhv(ENTRY);
 
 // since all leaf nodes in the structure to be implemented are degenerate rectangles,
 // we can simply return the Point if found, NULL if not.
-Point search_R_Tree(NODE, Point);
+Rect* search(HRTree, Rect);
+
+
+// insertion functions
+
+// finds a leaf node with a LHV which is over the the HV of the rect and is minimum
+NODE chooseLeaf(HRT, Rect, int);
