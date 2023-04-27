@@ -33,7 +33,7 @@ struct HRTree{
 
 // calculate Hilbert Value of the MID-POINT of data rectangles
 // but data rectangles here are only single 2D points
-int calculate_hilbert_value(Point);
+int calculate_hilbert_value(Rect);
 
 // obtain the LHV of a particular entry 
 //by taking the maximum LHV from the entries of the child node
@@ -41,7 +41,7 @@ void set_lhv(ENTRY);
 
 // since all leaf nodes in the structure to be implemented are degenerate rectangles,
 // we can simply return the Point if found, NULL if not.
-Rect* search(HRTree, Rect);
+Rect* search(HRT, Rect);
 
 
 // insertion functions
