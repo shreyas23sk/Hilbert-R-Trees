@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "bool.h"
 
 typedef struct Point Point;
 struct Point{
@@ -22,6 +23,7 @@ struct Entry {
 };
 typedef struct Entry* ENTRY;
 struct Node {
+    NODE parent;
     ENTRY all_entries[4];
 };
 
@@ -48,3 +50,5 @@ Rect* search(HRT, Rect);
 
 // finds a leaf node with a LHV which is over the the HV of the rect and is minimum
 NODE chooseLeaf(HRT, Rect, int);
+NODE handleOverflow(NODE, Rect);
+void insert(HRT, Rect);
