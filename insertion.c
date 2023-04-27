@@ -83,6 +83,12 @@ NODE handleOverflow(NODE leaf, Rect r){
                 prev = curr;
             }
         }
+
+        for(int i = 0; i < 2; i++) {
+            for(int j = 0; j < 4; j++) {
+                siblings[i]->all_entries[j] = all_entries_in_set[i * 4 + j];
+            }
+        }
     } else {
 
     }
