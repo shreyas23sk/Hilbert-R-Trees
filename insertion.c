@@ -76,6 +76,7 @@ NODE handleOverflow(NODE leaf, Rect r){
                 if(all_entries_in_set[i]->LHV > new_entry->LHV) {
                     prev = all_entries_in_set[i];
                     all_entries_in_set[i] = new_entry;
+                    new_entry_inserted = true;
                 }
             } else {
                 curr = all_entries_in_set[i];
