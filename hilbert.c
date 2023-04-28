@@ -35,9 +35,8 @@ int xy2d(int n, int x, int y)
 
 int calculate_hilbert_value(Rect r)
 {
-    return xy2d(20, (r.top_right.x + r.bottom_left.x)/2 , (r.top_right.y + r.bottom_left.y)/2);
+    return xy2d(20, (r.top_right.x + r.bottom_left.x) / 2, (r.top_right.y + r.bottom_left.y) / 2);
 }
-
 
 bool isLeaf(NODE n)
 {
@@ -57,12 +56,17 @@ void set_lhv(ENTRY e)
 { // UNTESTED
     NODE n = e->child;
 
-    if(n == NULL) {
-        e->LHV = calculate_hilbert_value(e->MBR); 
-    } else {
+    if (n == NULL)
+    {
+        e->LHV = calculate_hilbert_value(e->MBR);
+    }
+    else
+    {
         int new_lhv = 0;
-        for(int i = 0; i < 4; i++) {
-            if(n->all_entries[i]->LHV > new_lhv) {
+        for (int i = 0; i < 4; i++)
+        {
+            if (n->all_entries[i]->LHV > new_lhv)
+            {
                 new_lhv = n->all_entries[i]->LHV;
             }
         }
@@ -82,7 +86,7 @@ bool intersects(Rect r, Rect w)
     return true;
 }
 
-Rect* search(HRT ht, Rect w)
+Rect *search(HRT ht, Rect w)
 {
     NODE root = ht->root;
     Stack *s = newStack();
@@ -117,11 +121,26 @@ Rect* search(HRT ht, Rect w)
                     Rect r = currnode->all_entries[i]->MBR;
                     if (intersects(r, w))
                     {
-                        push(s,currnode->all_entries[i]);
+                        push(s, currnode->all_entries[i]);
                     }
                 }
             }
         }
     }
     return arr;
+}
+
+void pre_order_traversal(NODE root)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        if (root->all_entries[i] != NULL)
+        {
+            ENTRY e = root->all_entries[i];
+            printf("%d %d\n", e->MBR.bottom_left.x, e->MBR.bottom_left.y);
+            pre_order_traversal(e->child);
+        }
+        else
+            return;
+    }
 }
