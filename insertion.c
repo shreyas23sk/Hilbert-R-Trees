@@ -33,8 +33,9 @@ NODE chooseLeaf(HRT ht, Rect r, int h)
     return n;
 }
 
-NODE handleOverflow(NODE leaf, Rect r){
-    int h = calculate_hilbert_value(r);
+// if handling insertion of leaf node, calculate hv when calling function
+// else feed in LHV of non leaf node
+NODE handleOverflow(NODE L, Rect r, int h){
 
     // Entry to be inserted
     ENTRY new_entry = (ENTRY) malloc(sizeof(Entry));
@@ -42,56 +43,60 @@ NODE handleOverflow(NODE leaf, Rect r){
     new_entry->LHV = h;
     new_entry->MBR = r;
 
-    NODE siblings[2];
+    ENTRY* s = L->parent->all_entries;
+    int no_of_entries = 1; // node to be inserted;
+    int no_of_nodes = 0;
 
-    NODE p = leaf->parent;
-    int l_index;
     for(int i = 0; i < 4; i++) {
-        if(p->all_entries[i]->child == leaf) l_index = i;
+        no_of_entries += count_entries(s[i]->child);
     }
 
-    if(l_index == 0) { 
-        siblings[0] = leaf;
-        siblings[1] = p->all_entries[1]->child;
-    }
-    else {
-        siblings[0] = p->all_entries[l_index - 1]->child;
-        siblings[1] = leaf;
+    for(int i = 0; i < 4; i++) {
+        if(s[i] == NULL) no_of_nodes = i;
     }
 
-    if(count_entries(siblings[0]) + count_entries(siblings[1]) != 8) { // not all nodes are full
-        ENTRY all_entries_in_set[8];
+    ENTRY* e_arr = (ENTRY) malloc(sizeof(ENTRY) * no_of_entries);
 
-        for(int i = 0; i < 2; i++) {
-            for(int j = 0; j < 4; j++) {
-                all_entries_in_set[i * 4 + j] = siblings[i]->all_entries[j];
-            }
-        }
+    int i = 0, j = 0, k = 0; // i - counter for e_arr pointer,
+    bool new_entry_inserted = false;
 
-        // insert new_entry
-        ENTRY prev, curr;
-        bool new_entry_inserted = false;
-        for(int i = 0; i < 8; i++) {
-            if(new_entry_inserted == false) {
-                if(all_entries_in_set[i]->LHV > new_entry->LHV) {
-                    prev = all_entries_in_set[i];
-                    all_entries_in_set[i] = new_entry;
-                    new_entry_inserted = true;
+    for(int i = 0; i < 4; i++) {
+        for(int j = 0; j < 4; j++) {
+            if(s[i]->child->all_entries[j] != NULL) {
+                if(new_entry_inserted == false) {
+                    if(new_entry->LHV <= s[i]->child->all_entries[j]->LHV) {
+                        e_arr[k] = new_entry;
+                        new_entry_inserted = true;
+                        k++;
+                        continue;
+                    }
                 }
-            } else {
-                curr = all_entries_in_set[i];
-                all_entries_in_set[i] = prev;
-                prev = curr;
+                e_arr[k] = s[i]->child->all_entries[j];
+                k++;
             }
         }
+    }
+    
+    if(no_of_entries <= (no_of_nodes) * 4) {
+        // evenly distribute existing entries into existing nodes
+        // note :- av can never be less than 2 since m is 2
+        int av = (no_of_entries) / (no_of_nodes);
+        int rem = (no_of_entries) % (no_of_nodes);
 
-        for(int i = 0; i < 2; i++) {
-            for(int j = 0; j < 4; j++) {
-                siblings[i]->all_entries[j] = all_entries_in_set[i * 4 + j];
+        int j = 0;
+        int k = 0; // current entry in parent node
+        for(int i = 0; i < no_of_entries; i++) {
+            s[k]->child->all_entries[j] = e_arr[i];
+            j++;
+            if(j == av) {
+                j = 0;
+                if(k < no_of_nodes - 1) k++;
             }
         }
     } else {
+        // create new node
 
+        // evenly distribute existing entries into all 5 nodes
     }
 }
 

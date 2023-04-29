@@ -50,5 +50,5 @@ Rect* search(HRT, Rect);
 
 // finds a leaf node with a LHV which is over the the HV of the rect and is minimum
 NODE chooseLeaf(HRT, Rect, int);
-NODE handleOverflow(NODE, Rect);
+NODE handleOverflow(NODE, Rect, int);
 void insert(HRT, Rect);
