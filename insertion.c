@@ -33,13 +33,13 @@ NODE chooseLeaf(HRT ht, Rect r, int h)
     return n;
 }
 
-// if handling insertion of leaf node, calculate hv when calling function
-// else feed in LHV of non leaf node
-NODE handleOverflow(NODE L, Rect r, int h){
+// if handling insertion of leaf node, calculate hv when calling function, call with n = NULL
+// else feed in LHV of non leaf node, and treat n as the child node of new entry to be inserted
+NODE handleOverflow(NODE L, NODE n, Rect r, int h){
 
     // Entry to be inserted
     ENTRY new_entry = (ENTRY) malloc(sizeof(Entry));
-    new_entry->child = NULL;
+    new_entry->child = n;
     new_entry->LHV = h;
     new_entry->MBR = r;
 
@@ -87,10 +87,14 @@ NODE handleOverflow(NODE L, Rect r, int h){
         int k = 0; // current entry in parent node
         for(int i = 0; i < no_of_entries; i++) {
             s[k]->child->all_entries[j] = e_arr[i];
+            if(e_arr[i]->child != NULL) e_arr[i]->child->parent = L;
             j++;
-            if(j == av) {
-                j = 0;
-                if(k < no_of_nodes - 1) k++;
+            if(j >= av) {
+                if(rem > 0 && j < 4) rem--;
+                else {
+                    k++;
+                    j = 0;
+                }
             }
         }
 
@@ -100,15 +104,21 @@ NODE handleOverflow(NODE L, Rect r, int h){
         NODE new_node = (NODE) malloc(sizeof(struct Node));
         // evenly distribute all entries into all 5 nodes
 
+        int av = (no_of_entries) / (no_of_nodes);
+        int rem = (no_of_entries) % (no_of_nodes);
         int i;
         int j = 0;
         int k = 0; // current entry in parent node
-        for(i = 0; i < no_of_nodes * 4; i++) {
+        for(i = 0; i < no_of_nodes * av; i++) {
             s[k]->child->all_entries[j] = e_arr[i];
+            if(e_arr[i]->child != NULL) e_arr[i]->child->parent = L;
             j++;
-            if(j == 4) {
-                j = 0;
-                k++;
+            if(j >= av) {
+                if(rem > 0 && j < 4) rem--;
+                else {
+                    k++;
+                    j = 0;
+                }
             }
         }
 

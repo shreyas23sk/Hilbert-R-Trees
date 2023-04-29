@@ -23,7 +23,7 @@ struct Entry {
 };
 typedef struct Entry* ENTRY;
 struct Node {
-    NODE parent;
+    NODE parent; // the node which contains the entry which is parent to the current node
     ENTRY all_entries[4];
 };
 
@@ -50,5 +50,5 @@ Rect* search(HRT, Rect);
 
 // finds a leaf node with a LHV which is over the the HV of the rect and is minimum
 NODE chooseLeaf(HRT, Rect, int);
-NODE handleOverflow(NODE, Rect, int);
+NODE handleOverflow(NODE, NODE, Rect, int);
 void insert(HRT, Rect);
