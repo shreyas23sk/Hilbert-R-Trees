@@ -109,7 +109,7 @@ NODE handleOverflow(NODE L, NODE n, Rect r, int h){
         int i;
         int j = 0;
         int k = 0; // current entry in parent node
-        for(i = 0; i < no_of_nodes * av; i++) {
+        for(i = 0; i < no_of_nodes * av ; i++) {
             s[k]->child->all_entries[j] = e_arr[i];
             if(e_arr[i]->child != NULL) e_arr[i]->child->parent = L;
             j++;
@@ -131,6 +131,7 @@ NODE handleOverflow(NODE L, NODE n, Rect r, int h){
         return new_node;
     }
 }
+
 
 void insert(HRT ht, Rect r)
 {
