@@ -41,7 +41,7 @@ NODE chooseLeaf(HRT ht, Rect r, int h)
 
 // if handling insertion of leaf node, calculate hv when calling function, call with n = NULL
 // else feed in LHV of non leaf node, and treat n as the child node of new entry to be inserted
-NODE handleOverflow(NODE L, NODE n, Rect r, int h)
+NODE HandleOverflow(NODE L, NODE n, Rect r, int h)
 {
 
     // Entry to be inserted
@@ -163,18 +163,56 @@ NODE handleOverflow(NODE L, NODE n, Rect r, int h)
     }
 }
 
-// void checkSplit(NODE leaf, Rect r, int h)
-// {
+bool checkSplit(NODE leaf, Rect r, int h)
+{
+    if (leaf->all_entries[3] == NULL)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (leaf->all_entries[i] != NULL && leaf->all_entries[i]->LHV < h)
+            {
+                continue;
+            }
+            else
+            {
+                if (leaf->all_entries[i] == NULL)
+                {
+                    leaf->all_entries[i]->MBR = r;
+                    leaf->all_entries[i]->LHV = h;
+                }
+                else
+                {
+                    ENTRY temp = leaf->all_entries[i];
+                    leaf->all_entries[i]->MBR = r;
+                    leaf->all_entries[i]->LHV = h;
+                    for (int j = i + 1; j < 4; j++)
+                    {
+                        ENTRY temp2 = leaf->all_entries[j];
+                        leaf->all_entries[j] = temp;
+                        temp = temp2;
+                    }
+                }
+                break;
+            }
+        }
 
-// }
+        return true;
+    } else {
+        return false;
+    }
+}
 
-void AdjustTree(NODE S)
+void AdjustTree(NODE S, NODE NN)
 {
     if (S == NULL)
         return;
     else
     {
         NODE P = S->parent;
+        if(NN != NULL) {
+            
+        }
+
         for (int i = 0; i < 4; i++)
         {
             ENTRY e = P->all_entries[i];
@@ -240,14 +278,14 @@ void insert(HRT ht, Rect r)
                 break;
             }
         }
-        AdjustTree(leaf->parent);
+        AdjustTree(leaf->parent, NULL);
     }
     else
     {
-        NODE leaf2 = HandleOverflow(leaf, r);
+        NODE leaf2 = HandleOverflow(leaf, NULL, r, h);
         NODE Np = leaf->parent;
         if (leaf2 == NULL)
-            AdjustTree(Np);
+            AdjustTree(Np, NULL);
         else
         {
         }
