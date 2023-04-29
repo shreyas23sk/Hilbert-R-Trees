@@ -83,20 +83,33 @@ NODE handleOverflow(NODE L, Rect r, int h){
         int av = (no_of_entries) / (no_of_nodes);
         int rem = (no_of_entries) % (no_of_nodes);
 
-        int j = 0;
-        int k = 0; // current entry in parent node
-        for(int i = 0; i < no_of_entries; i++) {
-            s[k]->child->all_entries[j] = e_arr[i];
-            j++;
-            if(j == av) {
-                j = 0;
-                if(k < no_of_nodes - 1) k++;
-            }
-        }
+        
+
+        return NULL; 
     } else {
         // create new node
+        NODE new_node = (NODE) malloc(sizeof(struct Node));
+        // evenly distribute all entries into all 5 nodes
 
-        // evenly distribute existing entries into all 5 nodes
+        int i;
+        int j = 0;
+        int k = 0; // current entry in parent node
+        for(i = 0; i < no_of_nodes * 4; i++) {
+            s[k]->child->all_entries[j] = e_arr[i];
+            j++;
+            if(j == 4) {
+                j = 0;
+                k++;
+            }
+        }
+
+        j = 0;
+        while(i < no_of_entries) {
+            new_node->all_entries[j] = e_arr[i];
+            i++; j++;
+        }
+
+        return new_node;
     }
 }
 
