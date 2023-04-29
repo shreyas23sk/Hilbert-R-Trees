@@ -144,3 +144,56 @@ void pre_order_traversal(NODE root)
             return;
     }
 }
+
+Rect *createNewRect(Point p)
+{
+    Rect *rect = (Rect *)malloc(sizeof(Rect));
+    rect->bottom_left = p;
+    rect->top_right = p;
+    return rect;
+}
+
+Point *createNewPoint(int x, int y)
+{
+    Point *point = (Point *)malloc(sizeof(Point));
+    point->x = x;
+    point->y = y;
+    return point;
+}
+
+NODE createNewNodeOfTree()
+{
+    NODE n = (NODE)malloc(sizeof(struct Node));
+    for (int i = 0; i < 4; i++)
+    {
+        n->all_entries[i] = NULL;
+    }
+    n->parent = NULL;
+    return n;
+}
+
+int main()
+{
+    // Creating Hilbert Tree
+    NODE n=createNewNodeOfTree();
+    HRT ht = (HRT)malloc(sizeof(struct HRTree));
+    ht->root = n;
+
+    // Insertion of Nodes
+    FILE *fp = fopen("data.txt", "r");
+    if (fp == NULL)
+    {
+        printf("Unable to open the file");
+        exit(1);
+    }
+    while (!feof(fp))
+    {
+        int x, y;
+        fscanf(fp, "%d %d", &x, &y);
+        Point *point = createNewPoint(x, y); //creating a new point using x and y
+        Rect *rect = createNewRect(*point); //creating a new rectangle using the newly created point
+        insert(ht, *rect); //inserting the rectangle inside the Hilbert R tree
+    }
+
+    return 0;
+}
