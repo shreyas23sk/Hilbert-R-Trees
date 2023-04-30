@@ -37,7 +37,9 @@ NODE chooseLeaf(HRT ht, Rect r, int h)
             }
             
         }
-        if(temp == NULL) temp = last_non_null_node;
+
+        // assigning temp the node with the highest value of LHV in case of no node having higher value than h
+        if(temp == NULL) temp = last_non_null_node; 
         n = temp;
     }
 
