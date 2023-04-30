@@ -355,14 +355,46 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
     else
     {
         printf("inside adjustree\n");
-        // NODE P = S->parent;
-        ENTRY last_entry;
+        NODE PP = NULL;
         if (NN != NULL)
         {
-            ENTRY e = findMBR(NN);
-            checkSplit(ht, S, e->MBR, e->LHV);
+            ENTRY entry_to_be_inserted = findMBR(NN);
+            NODE leaf = S;
+            if (leaf->all_entries[3] == NULL)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    if (leaf->all_entries[i] != NULL && leaf->all_entries[i]->LHV < entry_to_be_inserted->LHV)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        if (leaf->all_entries[i] == NULL)
+                        {
+                            leaf->all_entries[i] = entry_to_be_inserted;
+                        }
+                        else
+                        {
+                            ENTRY temp = (ENTRY) malloc(sizeof(Entry));
+                            temp->LHV = leaf->all_entries[i]->LHV;
+                            temp->MBR = leaf->all_entries[i]->MBR;
+                            leaf->all_entries[i] = entry_to_be_inserted;
+                            for (int j = i + 1; j < 4; j++)
+                            {
+                                ENTRY temp2 = leaf->all_entries[j];
+                                leaf->all_entries[j] = temp;
+                                temp = temp2;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            else {
+                PP = HandleOverflow(ht, S, NN, entry_to_be_inserted->MBR, entry_to_be_inserted->LHV);
+            }
         }
-
         for (int i = 0; i < 4; i++)
         {
             ENTRY e = S->all_entries[i];
@@ -389,8 +421,35 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
                 e->MBR = *new_MBR;
                 e->LHV = lhv;
             }
+
+            if(PP != NULL) {
+                ENTRY e = PP->all_entries[i];
+                int minx = INT_MAX, maxx = INT_MIN, miny = INT_MAX, maxy = INT_MIN, lhv = 0;
+                if (e != NULL)
+                {   
+                    for (int j = 0; j < 4; j++)
+                    {
+                        ENTRY ec = e->child->all_entries[j];
+                        if (ec != NULL)
+                        {
+                            minx = MIN(minx, ec->MBR.bottom_left.x);
+                            miny = MIN(miny, ec->MBR.bottom_left.y);
+                            maxx = MAX(maxx, ec->MBR.top_right.x);
+                            maxy = MAX(maxy, ec->MBR.top_right.y);
+                            lhv = MAX(lhv, ec->LHV);
+                        }
+                    }
+                    Rect *new_MBR = (Rect *)malloc(sizeof(Rect));
+                    new_MBR->bottom_left.x = minx;
+                    new_MBR->bottom_left.y = miny;
+                    new_MBR->top_right.x = maxx;
+                    new_MBR->top_right.y = miny;
+                    e->MBR = *new_MBR;
+                    e->LHV = lhv;
+                }
+            }
         }
-        AdjustTree(ht, S->parent, NULL);
+        AdjustTree(ht, S->parent, PP);
     }
 }
 
