@@ -20,7 +20,7 @@ NODE chooseLeaf(HRT ht, Rect r, int h)
     while (isLeaf(n) == false)
     {
         NODE temp;
-        int min_lhv = 10000; // arbitrary big number, clean up later
+        int min_lhv = INT_MAX;
         for (int i = 0; i < 4; i++)
         {
             if (n->all_entries[i]->LHV > h)
