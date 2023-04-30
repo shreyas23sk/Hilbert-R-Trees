@@ -19,20 +19,25 @@ NODE chooseLeaf(HRT ht, Rect r, int h)
 
     while (isLeaf(n) == false)
     {
-        NODE temp;
+        NODE temp = NULL;
+        NODE last_non_null_node = NULL;
         int min_lhv = INT_MAX;
         for (int i = 0; i < 4; i++)
         {
-            if (n->all_entries[i]->LHV > h)
-            {
-                if (n->all_entries[i]->LHV < min_lhv)
+            if(n->all_entries[i] != NULL) {
+                last_non_null_node = n->all_entries[i]->child;
+                if (n->all_entries[i]->LHV > h)
                 {
-                    temp = n->all_entries[i]->child;
-                    min_lhv = n->all_entries[i]->LHV;
+                    if (n->all_entries[i]->LHV < min_lhv)
+                    {
+                        temp = n->all_entries[i]->child;
+                        min_lhv = n->all_entries[i]->LHV;
+                    }
                 }
             }
+            
         }
-
+        if(temp == NULL) temp = last_non_null_node;
         n = temp;
     }
 
