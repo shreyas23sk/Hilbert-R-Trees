@@ -14,6 +14,19 @@ void printNode(NODE n) {
     printf("\n");
 }
 
+void printChildNodes(NODE n) {
+    printf("Printing Child nodes :\n");
+    for(int i = 0; i < 4; i++) {
+        if(n->all_entries[i] != NULL && n->all_entries[i]->child != NULL) {
+            printNode(n->all_entries[i]->child);
+        } else if(n->all_entries[i] != NULL){
+            printf("NO CHILD\n");
+        } else {
+            printf("NO ENTRY\n");
+        }
+    }
+}
+
 int count_entries(NODE n)
 {
     for (int i = 0; i < 4; i++)
@@ -146,30 +159,29 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
     }
     else
     {
-
+        printf("Inside non-root node splitting\n");
         ENTRY *s = L->parent->all_entries;
         int no_of_entries = 1; // node to be inserted;
         int no_of_nodes = 0;
 
         for (int i = 0; i < 4; i++)
         {
-            no_of_entries += count_entries(s[i]->child);
+            if(s[i] != NULL) no_of_entries += count_entries(s[i]->child);
         }
 
         for (int i = 0; i < 4; i++)
         {
-            if (s[i] == NULL)
-                no_of_nodes = i;
+            no_of_nodes += (s[i] != NULL);
         }
-        if (no_of_nodes == 0)
-            no_of_nodes = 4;
+
+        printf("%d, %d\n", no_of_entries, no_of_nodes);
 
         ENTRY *e_arr = (ENTRY *)malloc(sizeof(ENTRY) * no_of_entries);
 
         int i = 0, j = 0, k = 0; // i - counter for e_arr pointer,
         bool new_entry_inserted = false;
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < no_of_nodes; i++)
         {
             for (int j = 0; j < 4; j++)
             {
@@ -187,6 +199,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
                         }
                     }
                     e_arr[k] = s[i]->child->all_entries[j];
+                    s[i]->child->all_entries[j] = NULL;
                     k++;
                 }
             }
@@ -251,6 +264,13 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
                 }
             }
 
+            for(int i = 0; i < no_of_nodes; i++) { // NON TESTING CODE DO NOT DELETE
+                s[i] = findMBR(s[i]->child);
+            }
+            printf("The old nodes are :\n");
+            for(int i = 0; i < no_of_nodes; i++) {
+                printNode(s[i]->child);
+            }
             j = 0;
             while (i < no_of_entries)
             {
@@ -258,7 +278,9 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
                 i++;
                 j++;
             }
-
+            
+            printf("Hello the new node is : ");
+            printNode(new_node);
             return new_node;
         }
     }
@@ -267,6 +289,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
 bool checkSplit(HRT ht, NODE leaf, Rect r, int h)
 {
     printf("inside checksplit\n");
+    printNode(leaf);
     if (leaf->all_entries[3] == NULL)
     {
         for (int i = 0; i < 4; i++)
@@ -302,8 +325,9 @@ bool checkSplit(HRT ht, NODE leaf, Rect r, int h)
                 break;
             }
         }
-        printNode(leaf);
         printf("end of checksplit\n");
+        printNode(leaf);
+        printChildNodes(leaf);
         AdjustTree(ht, leaf->parent, NULL);
     }
     // else {
@@ -312,7 +336,6 @@ bool checkSplit(HRT ht, NODE leaf, Rect r, int h)
     else
     {
         printf("inside handleoverflow\n");
-        
         NODE leaf2 = HandleOverflow(ht, leaf, NULL, r, h);
         printf("outside handleoverflow\n");
         NODE Np = leaf->parent;
@@ -333,13 +356,11 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
     {
         printf("inside adjustree\n");
         // NODE P = S->parent;
+        ENTRY last_entry;
         if (NN != NULL)
         {
-            for (int i = 0; i < 4; i++)
-            {
-                if (NN->all_entries[i] != NULL)
-                    checkSplit(ht, S, NN->all_entries[i]->MBR, NN->all_entries[i]->LHV);
-            }
+            ENTRY e = findMBR(NN);
+            checkSplit(ht, S, e->MBR, e->LHV);
         }
 
         for (int i = 0; i < 4; i++)
@@ -347,7 +368,7 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
             ENTRY e = S->all_entries[i];
             int minx = INT_MAX, maxx = INT_MIN, miny = INT_MAX, maxy = INT_MIN, lhv = 0;
             if (e != NULL)
-            {
+            {   
                 for (int j = 0; j < 4; j++)
                 {
                     ENTRY ec = e->child->all_entries[j];
