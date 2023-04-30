@@ -90,6 +90,8 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
         new_node->parent = new_root;
         L->parent = new_root;
         ht->root = new_root;
+
+        return NULL;
     }
     else
     {
