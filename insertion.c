@@ -3,6 +3,17 @@
 #define MIN(a, b) a < b ? a : b
 #define MAX(a, b) a > b ? a : b
 
+void printNode(NODE n) {
+    for(int i = 0; i < 4; i++) {
+        if(n->all_entries[i] != NULL) {
+            printf("%d, ", n->all_entries[i]->LHV);
+        } else {
+            printf("NULL, ");
+        }
+    }
+    printf("\n");
+}
+
 int count_entries(NODE n)
 {
     for (int i = 0; i < 4; i++)
@@ -72,7 +83,6 @@ NODE chooseLeaf(HRT ht, Rect r, int h)
             temp = last_non_null_node;
         n = temp;
     }
-
     return n;
 }
 
@@ -118,6 +128,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
         {
             L->all_entries[i] = s[i];
         }
+        L->all_entries[3] = NULL;
         NODE new_node = createNewNodeOfTree();
         new_node->all_entries[0] = s[3];
         new_node->all_entries[1] = s[4];
@@ -129,6 +140,8 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
         L->parent = new_root;
         ht->root = new_root;
 
+        printNode(L);
+        printNode(new_node);
         return NULL;
     }
     else
@@ -274,7 +287,9 @@ bool checkSplit(HRT ht, NODE leaf, Rect r, int h)
                 }
                 else
                 {
-                    ENTRY temp = leaf->all_entries[i];
+                    ENTRY temp = (ENTRY) malloc(sizeof(Entry));
+                    temp->LHV = leaf->all_entries[i]->LHV;
+                    temp->MBR = leaf->all_entries[i]->MBR;
                     leaf->all_entries[i]->MBR = r;
                     leaf->all_entries[i]->LHV = h;
                     for (int j = i + 1; j < 4; j++)
@@ -287,6 +302,7 @@ bool checkSplit(HRT ht, NODE leaf, Rect r, int h)
                 break;
             }
         }
+        printNode(leaf);
         printf("end of checksplit\n");
         AdjustTree(ht, leaf->parent, NULL);
     }
@@ -296,6 +312,7 @@ bool checkSplit(HRT ht, NODE leaf, Rect r, int h)
     else
     {
         printf("inside handleoverflow\n");
+        
         NODE leaf2 = HandleOverflow(ht, leaf, NULL, r, h);
         printf("outside handleoverflow\n");
         NODE Np = leaf->parent;
