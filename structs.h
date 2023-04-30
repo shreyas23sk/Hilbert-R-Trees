@@ -1,6 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef STRUCTS_H
+#define STRUCTS_H
 #include "bool.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 typedef struct Point Point;
 struct Point{
@@ -37,6 +39,8 @@ struct HRTree{
 // but data rectangles here are only single 2D points
 int calculate_hilbert_value(Rect);
 
+bool isLeaf(NODE);
+
 // obtain the LHV of a particular entry 
 //by taking the maximum LHV from the entries of the child node
 void set_lhv(ENTRY);
@@ -51,4 +55,6 @@ Rect* search(HRT, Rect);
 // finds a leaf node with a LHV which is over the the HV of the rect and is minimum
 NODE chooseLeaf(HRT, Rect, int);
 NODE HandleOverflow(HRT,NODE, NODE, Rect, int);
+void AdjustTree(HRT, NODE, NODE);
 void insert(HRT, Rect);
+#endif

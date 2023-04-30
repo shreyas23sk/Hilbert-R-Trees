@@ -91,8 +91,8 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
         new_node->all_entries[0] = s[3];
         new_node->all_entries[1] = s[4];
         NODE new_root = (NODE)malloc(sizeof(struct Node));
-        new_root->all_entries[0] = L;
-        new_root->all_entries[1] = new_node;
+        new_root->all_entries[0]->child = L;
+        new_root->all_entries[1]->child = new_node;
         new_root->parent = NULL;
         new_node->parent = new_root;
         L->parent = new_root;
@@ -119,7 +119,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
         }
         if(no_of_nodes == 0) no_of_nodes = 4;
 
-        ENTRY *e_arr = (ENTRY)malloc(sizeof(ENTRY) * no_of_entries);
+        ENTRY *e_arr = (ENTRY* )malloc(sizeof(ENTRY) * no_of_entries);
 
         int i = 0, j = 0, k = 0; // i - counter for e_arr pointer,
         bool new_entry_inserted = false;

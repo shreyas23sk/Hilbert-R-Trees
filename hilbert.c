@@ -91,7 +91,7 @@ Rect *search(HRT ht, Rect w)
     NODE root = ht->root;
     Stack *s = newStack();
     push(s, root);
-    Rect arr[] = (Rect *)malloc(sizeof(int) * 20);
+    Rect* arr = (Rect *)malloc(sizeof(int) * 20);
     int count = 0;
     while (!isEmpty(s))
     {
@@ -121,7 +121,7 @@ Rect *search(HRT ht, Rect w)
                     Rect r = currnode->all_entries[i]->MBR;
                     if (intersects(r, w))
                     {
-                        push(s, currnode->all_entries[i]);
+                        push(s, currnode->all_entries[i]->child);
                     }
                 }
             }
@@ -174,6 +174,7 @@ NODE createNewNodeOfTree()
 
 int main()
 {
+    printf("Hello\n");
     // Creating Hilbert Tree
     NODE n=createNewNodeOfTree();
     HRT ht = (HRT)malloc(sizeof(struct HRTree));
@@ -185,6 +186,8 @@ int main()
     {
         printf("Unable to open the file");
         exit(1);
+    } else {
+        printf("File was opened\n");
     }
     while (!feof(fp))
     {
@@ -194,6 +197,5 @@ int main()
         Rect *rect = createNewRect(*point); //creating a new rectangle using the newly created point
         insert(ht, *rect); //inserting the rectangle inside the Hilbert R tree
     }
-
     return 0;
 }

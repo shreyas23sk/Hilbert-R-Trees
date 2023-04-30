@@ -15,7 +15,7 @@ Stack *newStack(){
 }
 
 bool push(Stack *s,NODE data){
-    NODE n=createNewNode(data);
+    LISTNODE n=createNewNode(data);
     insertNodeIntoList(n,s->list);
     return true;
 }
