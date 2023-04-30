@@ -13,18 +13,48 @@ int count_entries(NODE n)
     return 4;
 }
 
+ENTRY findMBR(NODE P)
+{
+    printf("inside findMBR\n");
+    ENTRY e = (ENTRY)malloc(sizeof(Entry));
+    int minx = INT_MAX, maxx = INT_MIN, miny = INT_MAX, maxy = INT_MIN, lhv = 0;
+    for (int j = 0; j < 4; j++)
+    {
+        ENTRY ec = P->all_entries[j];
+        if (ec != NULL)
+        {
+            minx = MIN(minx, ec->MBR.bottom_left.x);
+            miny = MIN(miny, ec->MBR.bottom_left.y);
+            maxx = MAX(maxx, ec->MBR.top_right.x);
+            maxy = MAX(maxy, ec->MBR.top_right.y);
+            lhv = MAX(lhv, ec->LHV);
+        }
+    }
+    Rect *new_MBR = (Rect *)malloc(sizeof(Rect));
+    new_MBR->bottom_left.x = minx;
+    new_MBR->bottom_left.y = miny;
+    new_MBR->top_right.x = maxx;
+    new_MBR->top_right.y = miny;
+    e->MBR = *new_MBR;
+    e->LHV = lhv;
+    e->child = P;
+    return e;
+}
+
 NODE chooseLeaf(HRT ht, Rect r, int h)
 {
     NODE n = ht->root;
 
     while (isLeaf(n) == false)
     {
+        printf("inside chooseLeaf\n");
         NODE temp = NULL;
         NODE last_non_null_node = NULL;
         int min_lhv = INT_MAX;
         for (int i = 0; i < 4; i++)
         {
-            if(n->all_entries[i] != NULL) {
+            if (n->all_entries[i] != NULL)
+            {
                 last_non_null_node = n->all_entries[i]->child;
                 if (n->all_entries[i]->LHV > h)
                 {
@@ -35,11 +65,11 @@ NODE chooseLeaf(HRT ht, Rect r, int h)
                     }
                 }
             }
-            
         }
 
         // assigning temp the node with the highest value of LHV in case of no node having higher value than h
-        if(temp == NULL) temp = last_non_null_node; 
+        if (temp == NULL)
+            temp = last_non_null_node;
         n = temp;
     }
 
@@ -56,10 +86,11 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
     new_entry->child = n;
     new_entry->LHV = h;
     new_entry->MBR = r;
-    //Here root is splitting So we are handling this case seperately to create a new root
+    // Here root is splitting So we are handling this case seperately to create a new root
     if (L->parent == NULL)
     {
-        ENTRY s[5];
+        printf("inside root splitting\n");
+        ENTRY *s = (ENTRY *)malloc(sizeof(Entry) * 5);
         int j = 0;
         int k = 0;
         for (int i = 0; i < 4; i++)
@@ -87,12 +118,12 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
         {
             L->all_entries[i] = s[i];
         }
-        NODE new_node = (NODE)malloc(sizeof(struct Node));
+        NODE new_node = createNewNodeOfTree();
         new_node->all_entries[0] = s[3];
         new_node->all_entries[1] = s[4];
-        NODE new_root = (NODE)malloc(sizeof(struct Node));
-        new_root->all_entries[0]->child = L;
-        new_root->all_entries[1]->child = new_node;
+        NODE new_root = createNewNodeOfTree();
+        new_root->all_entries[0] = findMBR(L);
+        new_root->all_entries[1] = findMBR(new_node);
         new_root->parent = NULL;
         new_node->parent = new_root;
         L->parent = new_root;
@@ -117,9 +148,10 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
             if (s[i] == NULL)
                 no_of_nodes = i;
         }
-        if(no_of_nodes == 0) no_of_nodes = 4;
+        if (no_of_nodes == 0)
+            no_of_nodes = 4;
 
-        ENTRY *e_arr = (ENTRY* )malloc(sizeof(ENTRY) * no_of_entries);
+        ENTRY *e_arr = (ENTRY *)malloc(sizeof(ENTRY) * no_of_entries);
 
         int i = 0, j = 0, k = 0; // i - counter for e_arr pointer,
         bool new_entry_inserted = false;
@@ -221,6 +253,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
 
 bool checkSplit(HRT ht, NODE leaf, Rect r, int h)
 {
+    printf("inside checksplit\n");
     if (leaf->all_entries[3] == NULL)
     {
         for (int i = 0; i < 4; i++)
@@ -233,8 +266,11 @@ bool checkSplit(HRT ht, NODE leaf, Rect r, int h)
             {
                 if (leaf->all_entries[i] == NULL)
                 {
-                    leaf->all_entries[i]->MBR = r;
-                    leaf->all_entries[i]->LHV = h;
+                    ENTRY e = (ENTRY)malloc(sizeof(Entry));
+                    e->MBR = r;
+                    e->child = NULL;
+                    e->LHV = h;
+                    leaf->all_entries[i] = e;
                 }
                 else
                 {
@@ -251,7 +287,7 @@ bool checkSplit(HRT ht, NODE leaf, Rect r, int h)
                 break;
             }
         }
-
+        printf("end of checksplit\n");
         AdjustTree(ht, leaf->parent, NULL);
     }
     // else {
@@ -259,7 +295,9 @@ bool checkSplit(HRT ht, NODE leaf, Rect r, int h)
     // }
     else
     {
+        printf("inside handleoverflow\n");
         NODE leaf2 = HandleOverflow(ht, leaf, NULL, r, h);
+        printf("outside handleoverflow\n");
         NODE Np = leaf->parent;
         if (leaf2 == NULL)
             AdjustTree(ht, Np, NULL);
@@ -276,19 +314,20 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
         return;
     else
     {
-        NODE P = S->parent;
+        printf("inside adjustree\n");
+        // NODE P = S->parent;
         if (NN != NULL)
         {
             for (int i = 0; i < 4; i++)
             {
                 if (NN->all_entries[i] != NULL)
-                    checkSplit(ht, S->parent, NN->all_entries[i]->MBR, NN->all_entries[i]->LHV);
+                    checkSplit(ht, S, NN->all_entries[i]->MBR, NN->all_entries[i]->LHV);
             }
         }
 
         for (int i = 0; i < 4; i++)
         {
-            ENTRY e = P->all_entries[i];
+            ENTRY e = S->all_entries[i];
             int minx = INT_MAX, maxx = INT_MIN, miny = INT_MAX, maxy = INT_MIN, lhv = 0;
             if (e != NULL)
             {
@@ -304,28 +343,30 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
                         lhv = MAX(lhv, ec->LHV);
                     }
                 }
+                Rect *new_MBR = (Rect *)malloc(sizeof(Rect));
+                new_MBR->bottom_left.x = minx;
+                new_MBR->bottom_left.y = miny;
+                new_MBR->top_right.x = maxx;
+                new_MBR->top_right.y = miny;
+                e->MBR = *new_MBR;
+                e->LHV = lhv;
             }
-            Rect *new_MBR = (Rect *)malloc(sizeof(Rect));
-            new_MBR->bottom_left.x = minx;
-            new_MBR->bottom_left.y = miny;
-            new_MBR->top_right.x = maxx;
-            new_MBR->top_right.y = miny;
-            e->MBR = *new_MBR;
-            e->LHV = lhv;
         }
-        AdjustTree(ht, P->parent, NULL);
+        AdjustTree(ht, S->parent, NULL);
     }
 }
 
 void insert(HRT ht, Rect r)
 {
     int h = calculate_hilbert_value(r);
+    printf("inside insert %d\n", h);
     if (ht->root->all_entries[0] == NULL)
     {
         ENTRY e = (ENTRY)malloc(sizeof(Entry));
         e->MBR = r;
         e->LHV = h;
         e->child = NULL;
+        ht->root->all_entries[0] = e;
         return;
     }
     NODE leaf = chooseLeaf(ht, r, h);

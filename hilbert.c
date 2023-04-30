@@ -42,12 +42,17 @@ bool isLeaf(NODE n)
 {
     for (int i = 0; i < 4; i++)
     {
-        if (n->all_entries[i]->child != NULL)
+        if (n->all_entries[i]!=NULL && n->all_entries[i]->child == NULL)
         {
             continue;
         }
         else
+        {
+            if(n->all_entries[i]==NULL)
+            break;
+            else
             return false;
+        }
     }
     return true;
 }
@@ -134,8 +139,10 @@ void pre_order_traversal(NODE root)
 {
     for (int i = 0; i < 4; i++)
     {
+        printf("hel\n");
         if (root->all_entries[i] != NULL)
         {
+            printf("inside\n");
             ENTRY e = root->all_entries[i];
             printf("%d %d\n", e->MBR.bottom_left.x, e->MBR.bottom_left.y);
             pre_order_traversal(e->child);
@@ -196,6 +203,8 @@ int main()
         Point *point = createNewPoint(x, y); //creating a new point using x and y
         Rect *rect = createNewRect(*point); //creating a new rectangle using the newly created point
         insert(ht, *rect); //inserting the rectangle inside the Hilbert R tree
+        printf("aaa\n");
     }
+    pre_order_traversal(ht->root);
     return 0;
 }
