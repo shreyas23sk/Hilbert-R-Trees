@@ -117,6 +117,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
             if (s[i] == NULL)
                 no_of_nodes = i;
         }
+        if(no_of_nodes == 0) no_of_nodes = 4;
 
         ENTRY *e_arr = (ENTRY)malloc(sizeof(ENTRY) * no_of_entries);
 
