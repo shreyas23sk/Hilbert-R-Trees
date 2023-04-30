@@ -172,8 +172,8 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
             NODE new_node = (NODE)malloc(sizeof(struct Node));
             // evenly distribute all entries into all 5 nodes
 
-            int av = (no_of_entries) / (no_of_nodes);
-            int rem = (no_of_entries) % (no_of_nodes);
+            int av = (no_of_entries) / (no_of_nodes + 1);
+            int rem = (no_of_entries) % (no_of_nodes + 1);
             int i;
             int j = 0;
             int k = 0; // current entry in parent node
