@@ -3,6 +3,7 @@
 #include "bool.h"
 #include <stdlib.h>
 #include <stdio.h>
+typedef unsigned long long int;
 
 typedef struct Point Point;
 struct Point{
@@ -46,7 +47,7 @@ bool isLeaf(NODE);
 void set_lhv(ENTRY);
 
 // since all leaf nodes in the structure to be implemented are degenerate rectangles,
-// we can simply return the Point if found, NULL if not.
+// we can simply return the Point if found, Nint if not.
 Rect* search(HRT, Rect);
 NODE createNewNodeOfTree();
 

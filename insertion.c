@@ -39,7 +39,7 @@ int count_entries(NODE n)
 
 ENTRY findMBR(NODE P)
 {
-    printf("inside findMBR\n");
+    //printf("inside findMBR\n");
     ENTRY e = (ENTRY)malloc(sizeof(Entry));
     int minx = INT_MAX, maxx = INT_MIN, miny = INT_MAX, maxy = INT_MIN, lhv = 0;
     for (int j = 0; j < 4; j++)
@@ -71,15 +71,15 @@ NODE chooseLeaf(HRT ht, Rect r, int h)
 
     while (isLeaf(n) == false)
     {
-        printf("inside chooseLeaf\n");
+        //printf("inside chooseLeaf\n");
         NODE temp = NULL;
-        NODE last_non_null_node = NULL;
+        NODE last_non_NULL_node = NULL;
         int min_lhv = INT_MAX;
         for (int i = 0; i < 4; i++)
         {
             if (n->all_entries[i] != NULL)
             {
-                last_non_null_node = n->all_entries[i]->child;
+                last_non_NULL_node = n->all_entries[i]->child;
                 if (n->all_entries[i]->LHV > h)
                 {
                     if (n->all_entries[i]->LHV < min_lhv)
@@ -93,7 +93,7 @@ NODE chooseLeaf(HRT ht, Rect r, int h)
 
         // assigning temp the node with the highest value of LHV in case of no node having higher value than h
         if (temp == NULL)
-            temp = last_non_null_node;
+            temp = last_non_NULL_node;
         n = temp;
     }
     return n;
@@ -112,7 +112,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
     // Here root is splitting So we are handling this case seperately to create a new root
     if (L->parent == NULL)
     {
-        printf("inside root splitting\n");
+        //printf("inside root splitting\n");
         ENTRY *s = (ENTRY *)malloc(sizeof(Entry) * 5);
         int j = 0;
         int k = 0;
@@ -131,6 +131,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
                 break;
             }
         }
+        if(j == 4) s[k] = new_entry;
         for (int i = j; i < 4; i++)
         {
             s[k] = L->all_entries[j];
@@ -153,13 +154,17 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
         L->parent = new_root;
         ht->root = new_root;
 
-        printNode(L);
-        printNode(new_node);
+    /*    printf("The new reassigned root is : ");
+        printNode(new_root);
+        printf("And it's children are : \n");
+        printChildNodes(new_root);
+        printChildNodes(L);
+        printChildNodes(new_node); */
         return NULL;
     }
     else
     {
-        printf("Inside non-root node splitting\n");
+        //printf("Inside non-root node splitting\n");
         ENTRY *s = L->parent->all_entries;
         int no_of_entries = 1; // node to be inserted;
         int no_of_nodes = 0;
@@ -174,7 +179,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
             no_of_nodes += (s[i] != NULL);
         }
 
-        printf("%d, %d\n", no_of_entries, no_of_nodes);
+        //printf("%d, %d\n", no_of_entries, no_of_nodes);
 
         ENTRY *e_arr = (ENTRY *)malloc(sizeof(ENTRY) * no_of_entries);
 
@@ -243,10 +248,12 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
 
             int av = (no_of_entries) / (no_of_nodes + 1);
             int rem = (no_of_entries) % (no_of_nodes + 1);
+            int rem2 = rem;
+            //printf("%d %d\n", av, rem);
             int i;
             int j = 0;
             int k = 0; // current entry in parent node
-            for (i = 0; i < no_of_nodes * av; i++)
+            for (i = 0; i < (no_of_nodes * av + rem2); i++)
             {
                 s[k]->child->all_entries[j] = e_arr[i];
                 if (e_arr[i]->child != NULL)
@@ -267,10 +274,10 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
             for(int i = 0; i < no_of_nodes; i++) { // NON TESTING CODE DO NOT DELETE
                 s[i] = findMBR(s[i]->child);
             }
-            printf("The old nodes are :\n");
-            for(int i = 0; i < no_of_nodes; i++) {
-                printNode(s[i]->child);
-            }
+            //printf("The old nodes are :\n");
+            //for(int i = 0; i < no_of_nodes; i++) {
+              //  printNode(s[i]->child);
+            //}
             j = 0;
             while (i < no_of_entries)
             {
@@ -279,8 +286,8 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
                 j++;
             }
             
-            printf("Hello the new node is : ");
-            printNode(new_node);
+           // printf("Hello the new node is : ");
+            //printNode(new_node);
             return new_node;
         }
     }
@@ -288,8 +295,8 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
 
 bool checkSplit(HRT ht, NODE leaf, Rect r, int h)
 {
-    printf("inside checksplit\n");
-    printNode(leaf);
+    //printf("inside checksplit\n");
+    //printNode(leaf);
     if (leaf->all_entries[3] == NULL)
     {
         for (int i = 0; i < 4; i++)
@@ -325,10 +332,18 @@ bool checkSplit(HRT ht, NODE leaf, Rect r, int h)
                 break;
             }
         }
-        printf("end of checksplit\n");
-        printNode(leaf);
-        printChildNodes(leaf);
+        //printf("end of checksplit\n");
         AdjustTree(ht, leaf->parent, NULL);
+        /* printf("Root node is :\n");
+        printNode(ht->root);
+        printf("Printing child nodes of root : \n");
+        printChildNodes(ht->root);
+        printf("Going one level below : \n");
+        for(int i = 0; i < 4; i++) {
+            if(ht->root->all_entries[i] != NULL && ht->root->all_entries[i]->child != NULL) {
+                printChildNodes(ht->root->all_entries[i]->child);
+            }
+        } */
     }
     // else {
     //     return false;
@@ -354,7 +369,7 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
         return;
     else
     {
-        printf("inside adjustree\n");
+        //printf("inside adjustree\n");
         NODE PP = NULL;
         if (NN != NULL)
         {
@@ -392,6 +407,7 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
                 }
             }
             else {
+               // printf("PP Overflow\n");
                 PP = HandleOverflow(ht, S, NN, entry_to_be_inserted->MBR, entry_to_be_inserted->LHV);
             }
         }
@@ -420,6 +436,7 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
                 new_MBR->top_right.y = maxy;
                 e->MBR = *new_MBR;
                 e->LHV = lhv;
+                e->child->parent = S;
             }
 
             if(PP != NULL) {
@@ -446,6 +463,7 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
                     new_MBR->top_right.y = maxy;
                     e->MBR = *new_MBR;
                     e->LHV = lhv;
+                    e->child->parent = PP;
                 }
             }
         }
@@ -456,7 +474,7 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
 void insert(HRT ht, Rect r)
 {
     int h = calculate_hilbert_value(r);
-    printf("inside insert %d\n", h);
+    //printf("inside insert %d\n", h);
     if (ht->root->all_entries[0] == NULL)
     {
         ENTRY e = (ENTRY)malloc(sizeof(Entry));

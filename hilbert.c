@@ -2,6 +2,8 @@
 #include "linked_list.h"
 #include "stack.h"
 
+int check = 0;
+
 // COPIED FROM WIKIPEDIA - change to avoid plag
 void rot(int n, int *x, int *y, int rx, int ry)
 {
@@ -139,6 +141,7 @@ void pre_order_traversal(NODE root, int j)
 {
     if(root == NULL) {
         printf("End reached at level %d\n", j);
+        check++;
         return;
     }
     for (int i = 0; i < 4; i++)
@@ -147,7 +150,7 @@ void pre_order_traversal(NODE root, int j)
         {
             printf("inside ");
             ENTRY e = root->all_entries[i];
-            printf("(%d %d), (%d %d), level %d\n",e->MBR.top_right.x, e->MBR.top_right.y, e->MBR.bottom_left.x, e->MBR.bottom_left.y, j);
+            printf("(%d %d), (%d %d), level %d, node_no %d\n",e->MBR.top_right.x, e->MBR.top_right.y, e->MBR.bottom_left.x, e->MBR.bottom_left.y, j, i);
             pre_order_traversal(e->child, j + 1);
         }
     }
@@ -182,7 +185,6 @@ NODE createNewNodeOfTree()
 
 int main()
 {
-    printf("Hello\n");
     // Creating Hilbert Tree
     NODE n=createNewNodeOfTree();
     HRT ht = (HRT)malloc(sizeof(struct HRTree));
@@ -207,6 +209,8 @@ int main()
         printf("Last point inserted : (%d %d)\n", x, y);
     }
     pre_order_traversal(ht->root, 0);
+    printf("No of data rectangles counted : %d\n", check);
+    Rect* arr = search(ht, *createNewRect(*createNewPoint(1, 3)));
     return 0;
-    
+
 }
