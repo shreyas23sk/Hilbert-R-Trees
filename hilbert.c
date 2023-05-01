@@ -22,9 +22,9 @@ void rot(int n, int *x, int *y, int rx, int ry)
     }
 }
 
-int xy2d(int n, int x, int y)
+ull xy2d(int n, int x, int y)
 {
-    int rx, ry, s, d = 0;
+    ull rx, ry, s; ull d = 0;
     for (s = n / 2; s > 0; s /= 2)
     {
         rx = (x & s) > 0;
@@ -35,7 +35,7 @@ int xy2d(int n, int x, int y)
     return d;
 }
 
-int calculate_hilbert_value(Rect r)
+ull calculate_hilbert_value(Rect r)
 {
     return xy2d(20, (r.top_right.x + r.bottom_left.x) / 2, (r.top_right.y + r.bottom_left.y) / 2);
 }

@@ -3,7 +3,7 @@
 #include "bool.h"
 #include <stdlib.h>
 #include <stdio.h>
-typedef unsigned long long int;
+typedef unsigned long long ull;
 
 typedef struct Point Point;
 struct Point{
@@ -22,7 +22,7 @@ typedef struct Entry Entry;
 struct Entry {
     Rect MBR; // minimum bounding rectangle for all the child nodes of this entry
     NODE child;
-    int LHV; // largest hilbert value of data rectangles of the subtree (NOT MBR)
+    ull LHV; // largest hilbert value of data rectangles of the subtree (NOT MBR)
 };
 typedef struct Entry* ENTRY;
 struct Node {
@@ -38,7 +38,7 @@ struct HRTree{
 
 // calculate Hilbert Value of the MID-POINT of data rectangles
 // but data rectangles here are only single 2D points
-int calculate_hilbert_value(Rect);
+ull calculate_hilbert_value(Rect);
 
 bool isLeaf(NODE);
 
@@ -54,8 +54,8 @@ NODE createNewNodeOfTree();
 // insertion functions
 
 // finds a leaf node with a LHV which is over the the HV of the rect and is minimum
-NODE chooseLeaf(HRT, Rect, int);
-NODE HandleOverflow(HRT,NODE, NODE, Rect, int);
+NODE chooseLeaf(HRT, Rect, ull);
+NODE HandleOverflow(HRT,NODE, NODE, Rect, ull);
 void AdjustTree(HRT, NODE, NODE);
 void insert(HRT, Rect);
 #endif

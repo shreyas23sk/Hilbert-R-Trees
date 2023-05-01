@@ -6,7 +6,7 @@
 void printNode(NODE n) {
     for(int i = 0; i < 4; i++) {
         if(n->all_entries[i] != NULL) {
-            printf("%d, ", n->all_entries[i]->LHV);
+            printf("%lld ", n->all_entries[i]->LHV);
         } else {
             printf("NULL, ");
         }
@@ -65,7 +65,7 @@ ENTRY findMBR(NODE P)
     return e;
 }
 
-NODE chooseLeaf(HRT ht, Rect r, int h)
+NODE chooseLeaf(HRT ht, Rect r, ull h)
 {
     NODE n = ht->root;
 
@@ -74,7 +74,7 @@ NODE chooseLeaf(HRT ht, Rect r, int h)
         //printf("inside chooseLeaf\n");
         NODE temp = NULL;
         NODE last_non_NULL_node = NULL;
-        int min_lhv = INT_MAX;
+        ull min_lhv = (unsigned long long) 1e15;
         for (int i = 0; i < 4; i++)
         {
             if (n->all_entries[i] != NULL)
@@ -101,7 +101,7 @@ NODE chooseLeaf(HRT ht, Rect r, int h)
 
 // if handling insertion of leaf node, calculate hv when calling function, call with n = NULL
 // else feed in LHV of non leaf node, and treat n as the child node of new entry to be inserted
-NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
+NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
 {
 
     // Entry to be inserted
@@ -293,7 +293,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, int h)
     }
 }
 
-bool checkSplit(HRT ht, NODE leaf, Rect r, int h)
+bool checkSplit(HRT ht, NODE leaf, Rect r, ull h)
 {
     //printf("inside checksplit\n");
     //printNode(leaf);
@@ -350,9 +350,9 @@ bool checkSplit(HRT ht, NODE leaf, Rect r, int h)
     // }
     else
     {
-        printf("inside handleoverflow\n");
+        //printf("inside handleoverflow\n");
         NODE leaf2 = HandleOverflow(ht, leaf, NULL, r, h);
-        printf("outside handleoverflow\n");
+        //printf("outside handleoverflow\n");
         NODE Np = leaf->parent;
         if (leaf2 == NULL)
             AdjustTree(ht, Np, NULL);
@@ -414,7 +414,8 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
         for (int i = 0; i < 4; i++)
         {
             ENTRY e = S->all_entries[i];
-            int minx = INT_MAX, maxx = INT_MIN, miny = INT_MAX, maxy = INT_MIN, lhv = 0;
+            int minx = INT_MAX, maxx = INT_MIN, miny = INT_MAX, maxy = INT_MIN;
+            ull lhv = 0;
             if (e != NULL)
             {   
                 for (int j = 0; j < 4; j++)
@@ -441,7 +442,8 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
 
             if(PP != NULL) {
                 ENTRY e = PP->all_entries[i];
-                int minx = INT_MAX, maxx = INT_MIN, miny = INT_MAX, maxy = INT_MIN, lhv = 0;
+                int minx = INT_MAX, maxx = INT_MIN, miny = INT_MAX, maxy = INT_MIN;
+                ull lhv = 0;
                 if (e != NULL)
                 {   
                     for (int j = 0; j < 4; j++)
