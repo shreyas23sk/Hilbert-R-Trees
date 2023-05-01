@@ -112,7 +112,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
     // Here root is splitting So we are handling this case seperately to create a new root
     if (L->parent == NULL)
     {
-        //printf("inside root splitting\n");
+        printf("inside root splitting\n");
         ENTRY *s = (ENTRY *)malloc(sizeof(Entry) * 5);
         int j = 0;
         int k = 0;
@@ -164,7 +164,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
     }
     else
     {
-        //printf("Inside non-root node splitting\n");
+        printf("Inside non-root node splitting\n");
         ENTRY *s = L->parent->all_entries;
         int no_of_entries = 1; // node to be inserted;
         int no_of_nodes = 0;
@@ -179,7 +179,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
             no_of_nodes += (s[i] != NULL);
         }
 
-        //printf("%d, %d\n", no_of_entries, no_of_nodes);
+        printf("%d, %d\n", no_of_entries, no_of_nodes);
 
         ENTRY *e_arr = (ENTRY *)malloc(sizeof(ENTRY) * no_of_entries);
 
@@ -209,7 +209,9 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
                 }
             }
         }
-
+        if(new_entry_inserted == false) {
+            e_arr[no_of_entries - 1] = new_entry;
+        }
         if (no_of_entries <= (no_of_nodes)*4)
         {
             // evenly distribute existing entries into existing nodes
@@ -220,7 +222,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
             int j = 0;
             int k = 0; // current entry in parent node
             for (int i = 0; i < no_of_entries; i++)
-            {
+            {   
                 s[k]->child->all_entries[j] = e_arr[i];
                 if (e_arr[i]->child != NULL)
                     e_arr[i]->child->parent = L;
@@ -236,7 +238,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
                     }
                 }
             }
-
+            printf("Hello\n");
             return NULL;
         }
         else
@@ -343,16 +345,17 @@ bool checkSplit(HRT ht, NODE leaf, Rect r, ull h)
             if(ht->root->all_entries[i] != NULL && ht->root->all_entries[i]->child != NULL) {
                 printChildNodes(ht->root->all_entries[i]->child);
             }
-        } */
+        } 
+        */
     }
     // else {
     //     return false;
     // }
     else
     {
-        //printf("inside handleoverflow\n");
+        printf("inside handleoverflow\n");
         NODE leaf2 = HandleOverflow(ht, leaf, NULL, r, h);
-        //printf("outside handleoverflow\n");
+        printf("outside handleoverflow\n");
         NODE Np = leaf->parent;
         if (leaf2 == NULL)
             AdjustTree(ht, Np, NULL);
@@ -369,7 +372,7 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
         return;
     else
     {
-        //printf("inside adjustree\n");
+        printf("inside adjustree\n");
         NODE PP = NULL;
         if (NN != NULL)
         {
@@ -416,7 +419,7 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
             ENTRY e = S->all_entries[i];
             int minx = INT_MAX, maxx = INT_MIN, miny = INT_MAX, maxy = INT_MIN;
             ull lhv = 0;
-            if (e != NULL)
+            if (e != NULL && e->child != NULL)
             {   
                 for (int j = 0; j < 4; j++)
                 {
@@ -429,6 +432,7 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
                         maxy = MAX(maxy, ec->MBR.top_right.y);
                         lhv = MAX(lhv, ec->LHV);
                     }
+                    
                 }
                 Rect *new_MBR = (Rect *)malloc(sizeof(Rect));
                 new_MBR->bottom_left.x = minx;
@@ -476,7 +480,7 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
 void insert(HRT ht, Rect r)
 {
     int h = calculate_hilbert_value(r);
-    //printf("inside insert %d\n", h);
+    printf("inside insert %d\n", h);
     if (ht->root->all_entries[0] == NULL)
     {
         ENTRY e = (ENTRY)malloc(sizeof(Entry));
