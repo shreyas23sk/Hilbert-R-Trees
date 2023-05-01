@@ -58,7 +58,7 @@ ENTRY findMBR(NODE P)
     new_MBR->bottom_left.x = minx;
     new_MBR->bottom_left.y = miny;
     new_MBR->top_right.x = maxx;
-    new_MBR->top_right.y = miny;
+    new_MBR->top_right.y = maxy;
     e->MBR = *new_MBR;
     e->LHV = lhv;
     e->child = P;
@@ -417,7 +417,7 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
                 new_MBR->bottom_left.x = minx;
                 new_MBR->bottom_left.y = miny;
                 new_MBR->top_right.x = maxx;
-                new_MBR->top_right.y = miny;
+                new_MBR->top_right.y = maxy;
                 e->MBR = *new_MBR;
                 e->LHV = lhv;
             }
@@ -443,7 +443,7 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
                     new_MBR->bottom_left.x = minx;
                     new_MBR->bottom_left.y = miny;
                     new_MBR->top_right.x = maxx;
-                    new_MBR->top_right.y = miny;
+                    new_MBR->top_right.y = maxy;
                     e->MBR = *new_MBR;
                     e->LHV = lhv;
                 }

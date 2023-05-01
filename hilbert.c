@@ -135,20 +135,21 @@ Rect *search(HRT ht, Rect w)
     return arr;
 }
 
-void pre_order_traversal(NODE root)
+void pre_order_traversal(NODE root, int j)
 {
+    if(root == NULL) {
+        printf("End reached at level %d\n", j);
+        return;
+    }
     for (int i = 0; i < 4; i++)
     {
-        printf("hel\n");
         if (root->all_entries[i] != NULL)
         {
-            printf("inside\n");
+            printf("inside ");
             ENTRY e = root->all_entries[i];
-            printf("%d %d\n", e->MBR.bottom_left.x, e->MBR.bottom_left.y);
-            pre_order_traversal(e->child);
+            printf("(%d %d), (%d %d), level %d\n",e->MBR.top_right.x, e->MBR.top_right.y, e->MBR.bottom_left.x, e->MBR.bottom_left.y, j);
+            pre_order_traversal(e->child, j + 1);
         }
-        else
-            return;
     }
 }
 
@@ -203,8 +204,8 @@ int main()
         Point *point = createNewPoint(x, y); //creating a new point using x and y
         Rect *rect = createNewRect(*point); //creating a new rectangle using the newly created point
         insert(ht, *rect); //inserting the rectangle inside the Hilbert R tree
-        printf("aaa\n");
+        printf("Last point inserted : (%d %d)\n", x, y);
     }
-    pre_order_traversal(ht->root);
+    pre_order_traversal(ht->root, 0);
     return 0;
 }
