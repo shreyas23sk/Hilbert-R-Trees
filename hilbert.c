@@ -671,7 +671,7 @@ Rect *search(HRT ht, Rect w)
     NODE root = ht->root;
     Stack *s = newStack();
     push(s, root);
-    Rect* arr = (Rect *)malloc(sizeof(int) * 20);
+    Rect* arr = (Rect *)malloc(sizeof(Rect) * 105819);
     int count = 0;
     while (!isEmpty(s))
     {
@@ -700,7 +700,8 @@ Rect *search(HRT ht, Rect w)
                 {
                     Rect r = currnode->all_entries[i]->MBR;
                     if (intersects(r, w))
-                    {
+                    {   
+                        arr[count] = r; count++;
                         push(s, currnode->all_entries[i]->child);
                     }
                 }
@@ -787,6 +788,12 @@ int main()
     pre_order_traversal(ht->root, 0);
     printf("No of data rectangles counted : %d\n", check);
     // Rect* arr = search(ht, *createNewRect(*createNewPoint(1, 3)));
+    Point p1 = {856029, 730586}, p2 = {856029, 730586};
+    Rect re = {p1, p2};
+    Rect* arr = search(ht, re);
+    for (int i=0; i<(sizeof(arr)); i++){
+        printf("%d %d %d %d\n", arr[i].top_right.x, arr[i].top_right.y, arr[i].bottom_left.x, arr[i].bottom_left.y);
+    }
     return 0;
 
 }
