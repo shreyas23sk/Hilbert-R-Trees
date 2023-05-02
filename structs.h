@@ -48,7 +48,7 @@ void set_lhv(ENTRY);
 
 // since all leaf nodes in the structure to be implemented are degenerate rectangles,
 // we can simply return the Point if found, Nint if not.
-Rect* search(HRT, Rect);
+void search(HRT, Rect);
 NODE createNewNodeOfTree();
 
 // insertion functions

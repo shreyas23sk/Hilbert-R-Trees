@@ -192,7 +192,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
     // Here root is splitting So we are handling this case seperately to create a new root
     if (L->parent == NULL)
     {
-        printf("inside root splitting\n");
+        //printf("inside root splitting\n");
         ENTRY *s = (ENTRY *)malloc(sizeof(Entry) * 5);
         int j = 0;
         int k = 0;
@@ -387,7 +387,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
 
 bool checkSplit(HRT ht, NODE leaf, Rect r, ull h)
 {
-    printf("inside checksplit\n");
+    //printf("inside checksplit\n");
     //printNode(leaf);
     if (leaf->all_entries[3] == NULL)
     {
@@ -671,8 +671,9 @@ bool intersects(Rect r, Rect w)
     return true;
 }
 
-Rect *search(HRT ht, Rect w)
-{
+void search(HRT ht, Rect w)
+{   
+    printf("For the rectangle (%d %d) (%d %d), \n", w.bottom_left.x, w.bottom_left.y, w.top_right.x, w.top_right.y);
     NODE root = ht->root;
     Stack *s = newStack();
     push(s, root);
@@ -706,14 +707,22 @@ Rect *search(HRT ht, Rect w)
                     Rect r = currnode->all_entries[i]->MBR;
                     if (intersects(r, w))
                     {   
-                        arr[count] = r; count++;
                         push(s, currnode->all_entries[i]->child);
                     }
                 }
             }
         }
     }
-    return arr;
+    if(count == 0) {
+        printf("Intersecting data rectangle not found\n\n");
+        return ;
+    }
+    printf("Intersecting data rectangles found are :\n");
+    for(int i = 0; i < count; i++) {
+        printf("(%d %d) (%d %d)\n", arr[i].bottom_left.x, arr[i].bottom_left.y, arr[i].top_right.x, arr[i].top_right.y);
+    }
+    printf("\n");
+    return;
 }
 
 void pre_order_traversal(NODE root, int j)
@@ -790,7 +799,7 @@ int main()
         Point *point = createNewPoint(x, y); //creating a new point using x and y
         Rect *rect = createNewRect(*point); //creating a new rectangle using the newly created point
         insert(ht, *rect); //inserting the rectangle inside the Hilbert R tree
-        printf("Point taken is : (%lld %lld %lld)\n", x, y, calculate_hilbert_value(*rect));
+        //printf("Point taken is : (%lld %lld %lld)\n", x, y, calculate_hilbert_value(*rect));
         //printf("Last point inserted : (%lld %lld)\n", x, y);
         //pre_order_traversal(ht->root, 0);
         //printf("No of data rectangles inserted : %lld\n", check);
@@ -798,15 +807,15 @@ int main()
         //check = 0;
         //printf("Hello\n");
     }
-    pre_order_traversal(ht->root, 0);
-    printf("No of data rectangles counted : %lld\n", check);
+    //pre_order_traversal(ht->root, 0);
+    //printf("No of data rectangles counted : %lld\n", check);
     // Rect* arr = search(ht, *createNewRect(*createNewPoint(1, 3)));
     Point p1 = {856029, 730586}, p2 = {856029, 730586};
     Rect re = {p1, p2};
-    Rect* arr = search(ht, re);
-    for (int i=0; i<(sizeof(arr)); i++){
-        printf("%lld %lld %lld %lld\n", arr[i].top_right.x, arr[i].top_right.y, arr[i].bottom_left.x, arr[i].bottom_left.y);
-    }
+    Point p3 = {1, 1};
+    Rect re2 = {p3, p3};
+    search(ht, re);
+    search(ht, re2);
     return 0;
 
 }
