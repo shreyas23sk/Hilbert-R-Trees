@@ -6,33 +6,37 @@
 typedef unsigned long long ull;
 
 typedef struct Point Point;
-struct Point{
+struct Point
+{
     int x;
     int y;
 };
 
 typedef struct Rect Rect;
-struct Rect { // top_left == bottom_right in case of a single 2D point (degenerate rectangle)
+struct Rect
+{ // top_left == bottom_right in case of a single 2D point (degenerate rectangle)
     Point top_right;
     Point bottom_left;
 };
 
-typedef struct Node* NODE;
+typedef struct Node *NODE;
 typedef struct Entry Entry;
-struct Entry {
+struct Entry
+{
     Rect MBR; // minimum bounding rectangle for all the child nodes of this entry
     NODE child;
     ull LHV; // largest hilbert value of data rectangles of the subtree (NOT MBR)
 };
-typedef struct Entry* ENTRY;
-struct Node {
+typedef struct Entry *ENTRY;
+struct Node
+{
     NODE parent; // the node which contains the entry which is parent to the current node
     ENTRY all_entries[4];
 };
 
-
-typedef struct HRTree* HRT;
-struct HRTree{
+typedef struct HRTree *HRT;
+struct HRTree
+{
     NODE root;
 };
 
@@ -42,8 +46,8 @@ ull calculate_hilbert_value(Rect);
 
 bool isLeaf(NODE);
 
-// obtain the LHV of a particular entry 
-//by taking the maximum LHV from the entries of the child node
+// obtain the LHV of a particular entry
+// by taking the maximum LHV from the entries of the child node
 void set_lhv(ENTRY);
 
 // since all leaf nodes in the structure to be implemented are degenerate rectangles,
@@ -55,7 +59,7 @@ NODE createNewNodeOfTree();
 
 // finds a leaf node with a LHV which is over the the HV of the rect and is minimum
 NODE chooseLeaf(HRT, Rect, ull);
-NODE HandleOverflow(HRT,NODE, NODE, Rect, ull);
+NODE HandleOverflow(HRT, NODE, NODE, Rect, ull);
 void AdjustTree(HRT, NODE, NODE);
 void insert(HRT, Rect);
 #endif

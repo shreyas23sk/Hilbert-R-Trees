@@ -3,25 +3,37 @@
 #define MIN(a, b) a < b ? a : b
 #define MAX(a, b) a > b ? a : b
 
-void printNode(NODE n) {
-    for(int i = 0; i < 4; i++) {
-        if(n->all_entries[i] != NULL) {
+void printNode(NODE n)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        if (n->all_entries[i] != NULL)
+        {
             printf("%lld ", n->all_entries[i]->LHV);
-        } else {
+        }
+        else
+        {
             printf("NULL, ");
         }
     }
     printf("\n");
 }
 
-void printChildNodes(NODE n) {
+void printChildNodes(NODE n)
+{
     printf("Printing Child nodes :\n");
-    for(int i = 0; i < 4; i++) {
-        if(n->all_entries[i] != NULL && n->all_entries[i]->child != NULL) {
+    for (int i = 0; i < 4; i++)
+    {
+        if (n->all_entries[i] != NULL && n->all_entries[i]->child != NULL)
+        {
             printNode(n->all_entries[i]->child);
-        } else if(n->all_entries[i] != NULL){
+        }
+        else if (n->all_entries[i] != NULL)
+        {
             printf("NO CHILD\n");
-        } else {
+        }
+        else
+        {
             printf("NO ENTRY\n");
         }
     }
@@ -39,7 +51,7 @@ int count_entries(NODE n)
 
 ENTRY findMBR(NODE P)
 {
-    //printf("inside findMBR\n");
+    // printf("inside findMBR\n");
     ENTRY e = (ENTRY)malloc(sizeof(Entry));
     int minx = INT_MAX, maxx = INT_MIN, miny = INT_MAX, maxy = INT_MIN, lhv = 0;
     for (int j = 0; j < 4; j++)
@@ -71,10 +83,10 @@ NODE chooseLeaf(HRT ht, Rect r, ull h)
 
     while (isLeaf(n) == false)
     {
-        //printf("inside chooseLeaf\n");
+        // printf("inside chooseLeaf\n");
         NODE temp = NULL;
         NODE last_non_NULL_node = NULL;
-        ull min_lhv = (unsigned long long) 1e15;
+        ull min_lhv = (unsigned long long)1e15;
         for (int i = 0; i < 4; i++)
         {
             if (n->all_entries[i] != NULL)
@@ -131,7 +143,8 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
                 break;
             }
         }
-        if(j == 4) s[k] = new_entry;
+        if (j == 4)
+            s[k] = new_entry;
         for (int i = j; i < 4; i++)
         {
             s[k] = L->all_entries[j];
@@ -154,12 +167,12 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
         L->parent = new_root;
         ht->root = new_root;
 
-    /*    printf("The new reassigned root is : ");
-        printNode(new_root);
-        printf("And it's children are : \n");
-        printChildNodes(new_root);
-        printChildNodes(L);
-        printChildNodes(new_node); */
+        /*    printf("The new reassigned root is : ");
+            printNode(new_root);
+            printf("And it's children are : \n");
+            printChildNodes(new_root);
+            printChildNodes(L);
+            printChildNodes(new_node); */
         return NULL;
     }
     else
@@ -171,7 +184,8 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
 
         for (int i = 0; i < 4; i++)
         {
-            if(s[i] != NULL) no_of_entries += count_entries(s[i]->child);
+            if (s[i] != NULL)
+                no_of_entries += count_entries(s[i]->child);
         }
 
         for (int i = 0; i < 4; i++)
@@ -209,7 +223,8 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
                 }
             }
         }
-        if(new_entry_inserted == false) {
+        if (new_entry_inserted == false)
+        {
             e_arr[no_of_entries - 1] = new_entry;
         }
         if (no_of_entries <= (no_of_nodes)*4)
@@ -222,7 +237,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
             int j = 0;
             int k = 0; // current entry in parent node
             for (int i = 0; i < no_of_entries; i++)
-            {   
+            {
                 s[k]->child->all_entries[j] = e_arr[i];
                 if (e_arr[i]->child != NULL)
                     e_arr[i]->child->parent = L;
@@ -251,7 +266,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
             int av = (no_of_entries) / (no_of_nodes + 1);
             int rem = (no_of_entries) % (no_of_nodes + 1);
             int rem2 = rem;
-            //printf("%d %d\n", av, rem);
+            // printf("%d %d\n", av, rem);
             int i;
             int j = 0;
             int k = 0; // current entry in parent node
@@ -273,12 +288,13 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
                 }
             }
 
-            for(int i = 0; i < no_of_nodes; i++) { // NON TESTING CODE DO NOT DELETE
+            for (int i = 0; i < no_of_nodes; i++)
+            { // NON TESTING CODE DO NOT DELETE
                 s[i] = findMBR(s[i]->child);
             }
-            //printf("The old nodes are :\n");
-            //for(int i = 0; i < no_of_nodes; i++) {
-              //  printNode(s[i]->child);
+            // printf("The old nodes are :\n");
+            // for(int i = 0; i < no_of_nodes; i++) {
+            //   printNode(s[i]->child);
             //}
             j = 0;
             while (i < no_of_entries)
@@ -287,9 +303,9 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
                 i++;
                 j++;
             }
-            
-           // printf("Hello the new node is : ");
-            //printNode(new_node);
+
+            // printf("Hello the new node is : ");
+            // printNode(new_node);
             return new_node;
         }
     }
@@ -297,8 +313,8 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
 
 bool checkSplit(HRT ht, NODE leaf, Rect r, ull h)
 {
-    //printf("inside checksplit\n");
-    //printNode(leaf);
+    // printf("inside checksplit\n");
+    // printNode(leaf);
     if (leaf->all_entries[3] == NULL)
     {
         for (int i = 0; i < 4; i++)
@@ -319,7 +335,7 @@ bool checkSplit(HRT ht, NODE leaf, Rect r, ull h)
                 }
                 else
                 {
-                    ENTRY temp = (ENTRY) malloc(sizeof(Entry));
+                    ENTRY temp = (ENTRY)malloc(sizeof(Entry));
                     temp->LHV = leaf->all_entries[i]->LHV;
                     temp->MBR = leaf->all_entries[i]->MBR;
                     leaf->all_entries[i]->MBR = r;
@@ -334,7 +350,7 @@ bool checkSplit(HRT ht, NODE leaf, Rect r, ull h)
                 break;
             }
         }
-        //printf("end of checksplit\n");
+        // printf("end of checksplit\n");
         AdjustTree(ht, leaf->parent, NULL);
         /* printf("Root node is :\n");
         printNode(ht->root);
@@ -345,7 +361,7 @@ bool checkSplit(HRT ht, NODE leaf, Rect r, ull h)
             if(ht->root->all_entries[i] != NULL && ht->root->all_entries[i]->child != NULL) {
                 printChildNodes(ht->root->all_entries[i]->child);
             }
-        } 
+        }
         */
     }
     // else {
@@ -394,7 +410,7 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
                         }
                         else
                         {
-                            ENTRY temp = (ENTRY) malloc(sizeof(Entry));
+                            ENTRY temp = (ENTRY)malloc(sizeof(Entry));
                             temp->LHV = leaf->all_entries[i]->LHV;
                             temp->MBR = leaf->all_entries[i]->MBR;
                             leaf->all_entries[i] = entry_to_be_inserted;
@@ -409,8 +425,9 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
                     }
                 }
             }
-            else {
-               // printf("PP Overflow\n");
+            else
+            {
+                // printf("PP Overflow\n");
                 PP = HandleOverflow(ht, S, NN, entry_to_be_inserted->MBR, entry_to_be_inserted->LHV);
             }
         }
@@ -420,7 +437,7 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
             int minx = INT_MAX, maxx = INT_MIN, miny = INT_MAX, maxy = INT_MIN;
             ull lhv = 0;
             if (e != NULL && e->child != NULL)
-            {   
+            {
                 for (int j = 0; j < 4; j++)
                 {
                     ENTRY ec = e->child->all_entries[j];
@@ -432,7 +449,6 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
                         maxy = MAX(maxy, ec->MBR.top_right.y);
                         lhv = MAX(lhv, ec->LHV);
                     }
-                    
                 }
                 Rect *new_MBR = (Rect *)malloc(sizeof(Rect));
                 new_MBR->bottom_left.x = minx;
@@ -444,12 +460,13 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
                 e->child->parent = S;
             }
 
-            if(PP != NULL) {
+            if (PP != NULL)
+            {
                 ENTRY e = PP->all_entries[i];
                 int minx = INT_MAX, maxx = INT_MIN, miny = INT_MAX, maxy = INT_MIN;
                 ull lhv = 0;
                 if (e != NULL)
-                {   
+                {
                     for (int j = 0; j < 4; j++)
                     {
                         ENTRY ec = e->child->all_entries[j];

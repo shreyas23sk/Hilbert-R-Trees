@@ -2,14 +2,13 @@
 #define LINKEDLIST_H
 #include "structs.h"
 
-
 struct nodel
 {
     NODE data;
     struct nodel *next;
 };
 typedef struct nodel nodel;
-typedef nodel * LISTNODE;
+typedef nodel *LISTNODE;
 
 struct linked_list
 {
@@ -18,7 +17,7 @@ struct linked_list
     // NODE tail; // Not required for stack. Required for Queue
 };
 typedef struct linked_list linked_list;
-typedef linked_list * LIST;
+typedef linked_list *LIST;
 
 LIST createNewList();
 // This function allocates memory for a new list and returns a pointer to it.
