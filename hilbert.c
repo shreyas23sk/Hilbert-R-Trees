@@ -4,6 +4,9 @@
 #define MIN(a, b) a < b ? a : b
 #define MAX(a, b) a > b ? a : b
 
+int check = 0;
+int hilbert_N = 0;
+
 typedef enum
 {
     false,
@@ -55,7 +58,7 @@ void set_lhv(ENTRY);
 
 // since all leaf nodes in the structure to be implemented are degenerate rectangles,
 // we can simply return the Point if found, Nint if not.
-void search(HRT, Rect);
+void search(NODE, Rect, int*);
 NODE createNewNodeOfTree();
 
 // insertion functions
@@ -65,135 +68,6 @@ NODE chooseLeaf(HRT, Rect, ull);
 NODE HandleOverflow(HRT,NODE, NODE, Rect, ull);
 void AdjustTree(HRT, NODE, NODE);
 void insert(HRT, Rect);
-
-struct nodel
-{
-    NODE data;
-    struct nodel *next;
-};
-typedef struct nodel nodel;
-typedef nodel * LISTNODE;
-
-struct linked_list
-{
-    int count;
-    LISTNODE head;
-    // NODE tail; // Not required for stack. Required for Queue
-};
-typedef struct linked_list linked_list;
-typedef linked_list * LIST;
-
-LIST createNewList();
-// This function allocates memory for a new list and returns a pointer to it.
-// The list is empty and the count is set to 0.
-
-LISTNODE createNewNode(NODE data);
-// This function allocates memory for a new node and returns a pointer to it.
-// The next pointer is set to NULL and the data is set to the value passed in.
-
-void insertNodeIntoList(LISTNODE node, LIST list);
-// This function inserts a node at the beginning of the list.
-
-void removeFirstNode(LIST list);
-// This function removes the first node from the list.
-
-// void insertNodeAtEnd(NODE node, LIST list); // Not required for stack. Required for Queue
-// This function inserts a node at the end of the list.
-
-void destroyList(LIST list);
-
-
-
-typedef struct Stack Stack; // Stack is a pointer to a struct stack
-// Returns a pointer to a new stack. Returns NULL if memory allocation
-Stack *newStack();
-// Pushes element onto stack. Returns false if memory allocation fails
-bool push(Stack *stack, NODE element);
-// Returns a pointer to the top element. Returns NULL if stack is empty
-NODE top(Stack *stack);
-// Pops the top element and returns true. Returns false if stack is empty
-bool pop(Stack *stack);
-
-bool isEmpty(Stack *stack);
-// Frees all memory associated with stack
-void freeStack(Stack *stack);
-
-
-int check = 0;
-
-LIST createNewList(){
-    LIST l=(LIST)malloc(sizeof(linked_list));
-    l->count=0;
-    l->head=NULL;
-    return l;
-}
-
-LISTNODE createNewNode(NODE data){
-    LISTNODE n=(LISTNODE)malloc(sizeof(nodel));
-    n->data=data;
-    n->next=NULL;
-    return n;
-}
-
-void insertNodeIntoList(LISTNODE node,LIST list){
-    LISTNODE temp=list->head;
-    node->next=temp;
-    list->head=node;
-    list->count++;
-}
-
-void removeFirstNode(LIST list){
-    LISTNODE temp=list->head;
-    list->head=temp->next;
-    list->count--;
-    free(temp);
-}
-
-void destroyList(LIST list){
-    free(list);
-}
-
-struct Stack{
-    LIST list;
-};
-
-Stack *newStack(){
-    Stack *s=(Stack *)malloc(sizeof(Stack));
-    LIST l=createNewList();
-    s->list=l;
-    return s;
-}
-
-bool push(Stack *s,NODE data){
-    LISTNODE n=createNewNode(data);
-    insertNodeIntoList(n,s->list);
-    return true;
-}
-
-bool pop(Stack *s){
-    if(s->list->count!=0){
-    removeFirstNode(s->list);
-    return true;
-    }
-    else
-    return false;
-}
-
-bool isEmpty(Stack *s){
-    if(s->list->count==0)
-    return true;
-    else 
-    return false;
-}
-
-NODE top(Stack *s){
-    return (s->list->head->data);
-}
-
-void freeStack(Stack *s){
-    destroyList(s->list);
-    free(s);
-}
 
 
 void printNode(NODE n) {
@@ -348,12 +222,6 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
         L->parent = new_root;
         ht->root = new_root;
 
-      /*  printf("The new reassigned root is : ");
-        printNode(new_root);
-        printf("And it's children are : \n");
-        printChildNodes(new_root);
-        printChildNodes(L);
-        printChildNodes(new_node);  */
         return NULL;
     }
     else
@@ -499,76 +367,6 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
     }
 }
 
-bool checkSplit(HRT ht, NODE leaf, Rect r, ull h)
-{
-    //printf("inside checksplit\n");
-    //printNode(leaf);
-    if (leaf->all_entries[3] == NULL)
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            if (leaf->all_entries[i] != NULL && leaf->all_entries[i]->LHV < h)
-            {
-                continue;
-            }
-            else
-            {
-                if (leaf->all_entries[i] == NULL)
-                {
-                    ENTRY e = (ENTRY)malloc(sizeof(Entry));
-                    e->MBR = r;
-                    e->child = NULL;
-                    e->LHV = h;
-                    leaf->all_entries[i] = e;
-                }
-                else
-                {
-                    ENTRY temp = (ENTRY) malloc(sizeof(Entry));
-                    temp->LHV = leaf->all_entries[i]->LHV;
-                    temp->MBR = leaf->all_entries[i]->MBR;
-                    leaf->all_entries[i]->MBR = r;
-                    leaf->all_entries[i]->LHV = h;
-                    for (int j = i + 1; j < 4; j++)
-                    {
-                        ENTRY temp2 = leaf->all_entries[j];
-                        leaf->all_entries[j] = temp;
-                        temp = temp2;
-                    }
-                }
-                break;
-            }
-        }
-        //printf("end of checksplit\n");
-        AdjustTree(ht, leaf->parent, NULL);
-       /* printf("Root node is :\n");
-        printNode(ht->root);
-        printf("Printing child nodes of root : \n");
-        printChildNodes(ht->root);
-        printf("Going one level below : \n");
-        for(int i = 0; i < 4; i++) {
-            if(ht->root->all_entries[i] != NULL && ht->root->all_entries[i]->child != NULL) {
-                printChildNodes(ht->root->all_entries[i]->child);
-            }
-        }  */
-    }
-    // else {
-    //     return false;
-    // }
-    else
-    {
-        //printf("inside handleoverflow\n");
-        NODE leaf2 = HandleOverflow(ht, leaf, NULL, r, h);
-        //printf("outside handleoverflow\n");
-        NODE Np = leaf->parent;
-        if (leaf2 == NULL)
-            AdjustTree(ht, Np, NULL);
-        else
-        {
-            AdjustTree(ht, Np, leaf2);
-        }
-    }
-}
-
 void AdjustTree(HRT ht, NODE S, NODE NN)
 {
     if (S == NULL)
@@ -694,7 +492,55 @@ void insert(HRT ht, Rect r)
         return;
     }
     NODE leaf = chooseLeaf(ht, r, h);
-    checkSplit(ht, leaf, r, h);
+
+    if (leaf->all_entries[3] == NULL)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (leaf->all_entries[i] != NULL && leaf->all_entries[i]->LHV < h)
+            {
+                continue;
+            }
+            else
+            {
+                if (leaf->all_entries[i] == NULL)
+                {
+                    ENTRY e = (ENTRY)malloc(sizeof(Entry));
+                    e->MBR = r;
+                    e->child = NULL;
+                    e->LHV = h;
+                    leaf->all_entries[i] = e;
+                }
+                else
+                {
+                    ENTRY temp = (ENTRY) malloc(sizeof(Entry));
+                    temp->LHV = leaf->all_entries[i]->LHV;
+                    temp->MBR = leaf->all_entries[i]->MBR;
+                    leaf->all_entries[i]->MBR = r;
+                    leaf->all_entries[i]->LHV = h;
+                    for (int j = i + 1; j < 4; j++)
+                    {
+                        ENTRY temp2 = leaf->all_entries[j];
+                        leaf->all_entries[j] = temp;
+                        temp = temp2;
+                    }
+                }
+                break;
+            }
+        }
+        AdjustTree(ht, leaf->parent, NULL);
+    }
+    else
+    {
+        NODE leaf2 = HandleOverflow(ht, leaf, NULL, r, h);
+        NODE Np = leaf->parent;
+        if (leaf2 == NULL)
+            AdjustTree(ht, Np, NULL);
+        else
+        {
+            AdjustTree(ht, Np, leaf2);
+        }
+    }
 }
 
 void rot(int n, int *x, int *y, ull rx, ull ry)
@@ -729,7 +575,7 @@ ull xy2d(int n, int x, int y)
 
 ull calculate_hilbert_value(Rect r)
 {
-    return xy2d(1000000, (r.top_right.x + r.bottom_left.x) / 2, (r.top_right.y + r.bottom_left.y) / 2);
+    return xy2d(hilbert_N, (r.top_right.x + r.bottom_left.x) / 2, (r.top_right.y + r.bottom_left.y) / 2);
 }
 
 bool isLeaf(NODE n)
@@ -785,58 +631,49 @@ bool intersects(Rect r, Rect w)
     return true;
 }
 
-void search(HRT ht, Rect w)
+void printRect(Rect r) {
+    printf("(%d %d) (%d %d)\n", r.bottom_left.x, r.bottom_left.y, r.top_right.x, r.top_right.y);
+}
+
+void search(NODE root, Rect w, int *p)
 {   
-    printf("For the rectangle (%d %d) (%d %d), \n", w.bottom_left.x, w.bottom_left.y, w.top_right.x, w.top_right.y);
-    NODE root = ht->root;
-    Stack *s = newStack();
-    push(s, root);
-    Rect* arr = (Rect *)malloc(sizeof(Rect) * 105819);
-    int count = 0;
-    while (!isEmpty(s))
+    if(isLeaf(root)) {
+        for(int i = 0; i < 4; i++) {
+            if(root->all_entries[i] != NULL) {
+                if(intersects(root->all_entries[i]->MBR, w)) {
+                    (*p)++;
+                    printRect(root->all_entries[i]->MBR);
+                }
+            }
+        }
+        return;
+    }
+    for (int i = 0; i < 4; i++)
     {
-        NODE currnode = top(s);
-        pop(s);
-        if (isLeaf(currnode))
+        if (root->all_entries[i] != NULL)
         {
-            for (int i = 0; i < 4; i++)
-            {
-                if (currnode->all_entries[i] != NULL)
-                {
-                    Rect r = currnode->all_entries[i]->MBR;
-                    if (intersects(r, w))
-                    {
-                        arr[count] = r;
-                        count++;
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (int i = 0; i < 4; i++)
-            {
-                if (currnode->all_entries[i] != NULL)
-                {
-                    Rect r = currnode->all_entries[i]->MBR;
-                    if (intersects(r, w))
-                    {   
-                        push(s, currnode->all_entries[i]->child);
-                    }
+            ENTRY e = root->all_entries[i];
+            if(e != NULL) {
+                if(intersects(e->MBR, w)) {
+                    search(e->child, w, p);
                 }
             }
         }
     }
-    if(count == 0) {
-        printf("Intersecting data rectangle not found\n\n");
-        return ;
-    }
-    printf("Intersecting data rectangles found are :\n");
-    for(int i = 0; i < count; i++) {
-        printf("(%d %d) (%d %d)\n", arr[i].bottom_left.x, arr[i].bottom_left.y, arr[i].top_right.x, arr[i].top_right.y);
+}
+
+void search_wrapper(HRT ht, Rect w) {
+    int a = 0;
+    int *ptr;
+    ptr = &a;
+
+    printf("For the rectangle ");
+    printRect(w);
+    search(ht->root, w, ptr);
+    if(*ptr == 0) {
+        printf("No intersecting data rectangle was found\n");
     }
     printf("\n");
-    return;
 }
 
 void pre_order_traversal(NODE root, int j)
@@ -885,6 +722,7 @@ NODE createNewNodeOfTree()
     return n;
 }
 
+
 int main()
 {
     // Creating Hilbert Tree
@@ -896,14 +734,24 @@ int main()
     scanf("%s",str);
 
     // Insertion of Nodes
-    FILE *fp = fopen(str, "r");
-    if (fp == NULL)
+    FILE *fp2 = fopen(str, "r");
+    if (fp2 == NULL)
     {
         printf("Unable to open the file");
         exit(1);
     } else {
         printf("File was opened\n");
     }
+
+    while(!feof(fp2)) {
+        int x, y;
+        fscanf(fp2, "%d %d", &x, &y);
+        hilbert_N = MAX(hilbert_N, x);
+        hilbert_N = MAX(hilbert_N, y);
+    }
+    fclose(fp2);
+
+    FILE *fp = fopen(str, "r");
     int i = 0;
     while (!feof(fp))
     {
@@ -913,23 +761,17 @@ int main()
         Point *point = createNewPoint(x, y); //creating a new point using x and y
         Rect *rect = createNewRect(*point); //creating a new rectangle using the newly created point
         insert(ht, *rect); //inserting the rectangle inside the Hilbert R tree
-        //printf("Point taken is : (%lld %lld %lld)\n", x, y, calculate_hilbert_value(*rect));
-        //printf("Last point inserted : (%lld %lld)\n", x, y);
-        //pre_order_traversal(ht->root, 0);
-        //printf("No of data rectangles inserted : %lld\n", check);
-        
-        //check = 0;
-        //printf("Hello\n");
+        printf("Point taken is : (%lld %lld %lld)\n", x, y, calculate_hilbert_value(*rect));
     }
-    //pre_order_traversal(ht->root, 0);
-    //printf("No of data rectangles counted : %lld\n", check);
-    // Rect* arr = search(ht, *createNewRect(*createNewPoint(1, 3)));
+    pre_order_traversal(ht->root, 0);
+    printf("No of data rectangles counted : %lld\n", check);
     Point p1 = {856029, 730586}, p2 = {856029, 730586};
     Rect re = {p1, p2};
     Point p3 = {1, 1};
     Rect re2 = {p3, p3};
-    search(ht, re);
-    search(ht, re2);
+    search_wrapper(ht, re);
+    search_wrapper(ht, re2);
+    fclose(fp);
     return 0;
 
 }
