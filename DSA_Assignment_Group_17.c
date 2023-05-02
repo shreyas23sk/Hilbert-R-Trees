@@ -64,7 +64,6 @@ ENTRY findMBR(NODE);
 bool intersects(Rect, Rect);
 void printRect(Rect);
 
-
 // initializing functions
 NODE createNewNodeOfTree();
 Rect *createNewRect(Point);
@@ -97,8 +96,8 @@ int count_entries(NODE n)
     return 4;
 }
 
-// returns a new Entry whose MBR LHV is calculated according to the 
-// entries of node P and whose child is node P 
+// returns a new Entry whose MBR LHV is calculated according to the
+// entries of node P and whose child is node P
 ENTRY findMBR(NODE P)
 {
     ENTRY e = (ENTRY)malloc(sizeof(Entry));
@@ -640,21 +639,20 @@ bool intersects(Rect r, Rect w)
     int wymax = w.top_right.y, wymin = w.bottom_left.y;
     // Check if the rectangles intersect
     if ((
-        (rxmin <= wxmin && rxmax <= wxmax) ||
-        (rxmin >= wxmin && rxmax >= wxmax) ||
-        (rxmin <= wxmin && wxmax <= rxmax) ||
-        (wxmin <= rxmin && rxmax <= wxmax)
-    ) && ( 
-        (rymin <= wymin && rymax <= wymin) ||
-        (rymin >= wymin && rymax >= wymax) ||
-        (rymin <= wymin && wymax <= rymax) ||
-        (wymin <= rymin && rymax <= wymax)
-    ))
+            (rxmin <= wxmin && rxmax <= wxmax) ||
+            (rxmin >= wxmin && rxmax >= wxmax) ||
+            (rxmin <= wxmin && wxmax <= rxmax) ||
+            (wxmin <= rxmin && rxmax <= wxmax)) &&
+        ((rymin <= wymin && rymax <= wymin) ||
+         (rymin >= wymin && rymax >= wymax) ||
+         (rymin <= wymin && wymax <= rymax) ||
+         (wymin <= rymin && rymax <= wymax)))
     {
         return true;
     }
     // If the rectangles intersect, return true
-    else return false;
+    else
+        return false;
 }
 
 void printRect(Rect r)
@@ -662,7 +660,7 @@ void printRect(Rect r)
     printf("(%d %d) (%d %d)\n", r.bottom_left.x, r.bottom_left.y, r.top_right.x, r.top_right.y);
 }
 
-// it prints all the leaf nodes which intersect with the rectangle w 
+// it prints all the leaf nodes which intersect with the rectangle w
 void search(NODE root, Rect w, int *p)
 {
     // S2 : Report all entries at leaf node level who intersect with the target rectangle as candidates
@@ -676,6 +674,7 @@ void search(NODE root, Rect w, int *p)
                 if (e->MBR.top_right.x == w.top_right.x && e->MBR.top_right.y == w.top_right.y)
                 {
                     (*p)++;
+                    printf("Found: ");
                     printRect(root->all_entries[i]->MBR);
                 }
             }
@@ -734,7 +733,8 @@ void pre_order_traversal(NODE root, int j)
                 printf("Inside leaf node ");
             ENTRY e = root->all_entries[i];
             printf("(%lld %lld), (%lld %lld), level %lld, node_no %lld\n", e->MBR.top_right.x, e->MBR.top_right.y, e->MBR.bottom_left.x, e->MBR.bottom_left.y, j, i);
-            if(e->child == NULL) check++;
+            if (e->child == NULL)
+                check++;
             pre_order_traversal(e->child, j + 1);
         }
     }
@@ -813,7 +813,7 @@ int main()
         Point *point = createNewPoint(x, y); // creating a new point using x and y
         Rect *rect = createNewRect(*point);  // creating a new rectangle using the newly created point
         insert(ht, *rect);                   // inserting the rectangle inside the Hilbert R tree
-        printf("The point (%d,%d) of the file %s has been inserted \n", x,y,str);
+        printf("The point (%d,%d) of the file %s has been inserted \n", x, y, str);
     }
     fclose(fp);
 
@@ -833,8 +833,6 @@ int main()
             {
             case 1:
                 pre_order_traversal(ht->root, 0);
-                printf("No of leaf nodes counted : %d\n", check);
-                check = 0;
                 break;
             case 2:
                 printf("Enter the point which you wish to search in the tree :\n");
