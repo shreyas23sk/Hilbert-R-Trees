@@ -200,7 +200,6 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
     // Step I4 of the insertion algorithm : If the root has been split, create a new root to enclose split nodes
     if (L->parent == NULL)
     {
-        //printf("inside root splitting\n");
         ENTRY *s = (ENTRY *)malloc(sizeof(Entry) * 5);
         int j = 0;
         int k = 0;
@@ -229,11 +228,23 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
         for (int i = 0; i < 3; i++)
         {
             L->all_entries[i] = s[i];
+            if(s[i]->child != NULL) {
+                L->all_entries[i]->child = s[i]->child;
+                L->all_entries[i]->child->parent = L;
+            }
         }
         L->all_entries[3] = NULL;
         NODE new_node = createNewNodeOfTree();
         new_node->all_entries[0] = s[3];
+        if(s[3]->child != NULL) {
+            new_node->all_entries[0]->child = s[3]->child;
+            new_node->all_entries[0]->child->parent = new_node;
+        }
         new_node->all_entries[1] = s[4];
+        if(s[4]->child != NULL) {
+            new_node->all_entries[1]->child = s[4]->child;
+            new_node->all_entries[1]->child->parent = new_node;
+        }
         NODE new_root = createNewNodeOfTree();
         new_root->all_entries[0] = findMBR(L);
         new_root->all_entries[1] = findMBR(new_node);
@@ -250,7 +261,6 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
         ENTRY *s = L->parent->all_entries;
         int no_of_entries = 1; // node to be inserted;
         int no_of_nodes = 0;
-
 
         for (int i = 0; i < 4; i++)
         {
@@ -791,6 +801,10 @@ int main()
     }
     fclose(fp2);
 
+    int k = 0;
+    while((1 << k) < hilbert_N) k++;
+    hilbert_N = (1 << k); 
+
     FILE *fp = fopen(str, "r");
     int i = 0;
     while (!feof(fp))
@@ -801,7 +815,10 @@ int main()
         Point *point = createNewPoint(x, y); //creating a new point using x and y
         Rect *rect = createNewRect(*point); //creating a new rectangle using the newly created point
         insert(ht, *rect); //inserting the rectangle inside the Hilbert R tree
-        printf("Point taken is : (%lld %lld %lld)\n", x, y, calculate_hilbert_value(*rect));
+        //printf("Point taken is : (%lld %lld %lld)\n", x, y, calculate_hilbert_value(*rect));
+        //pre_order_traversal(ht->root, 0);
+        //printf("No of nodes inserted : %d\n", check);
+        check = 0;
     }
     pre_order_traversal(ht->root, 0);
     printf("No of data rectangles counted : %lld\n", check);
@@ -812,6 +829,8 @@ int main()
     search_wrapper(ht, re);
     search_wrapper(ht, re2);
     fclose(fp);
+
+    printf("%lld", hilbert_N);
     return 0;
 
 }
