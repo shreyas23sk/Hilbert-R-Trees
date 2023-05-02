@@ -54,8 +54,6 @@ ull calculate_hilbert_value(Rect);
 
 // helper functions
 bool isLeaf(NODE);
-void printNode(NODE);
-void printChildNodes(NODE);
 int count_entries(NODE);
 ENTRY findMBR(NODE);
 bool intersects(Rect, Rect);
@@ -87,31 +85,7 @@ NODE HandleOverflow(HRT,NODE, NODE, Rect, ull);
 void AdjustTree(HRT, NODE, NODE);
 void insert(HRT, Rect);
 
-
-void printNode(NODE n) {
-    for(int i = 0; i < 4; i++) {
-        if(n->all_entries[i] != NULL) {
-            printf("%lld ", n->all_entries[i]->LHV);
-        } else {
-            printf("NULL, ");
-        }
-    }
-    printf("\n");
-}
-
-void printChildNodes(NODE n) {
-    printf("Printing Child nodes :\n");
-    for(int i = 0; i < 4; i++) {
-        if(n->all_entries[i] != NULL && n->all_entries[i]->child != NULL) {
-            printNode(n->all_entries[i]->child);
-        } else if(n->all_entries[i] != NULL){
-            printf("NO CHILD\n");
-        } else {
-            printf("NO ENTRY\n");
-        }
-    }
-}
-
+// implementations
 int count_entries(NODE n)
 {
     for (int i = 0; i < 4; i++)
@@ -284,23 +258,17 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
             {
                 if (s[i]->child!=NULL && s[i]->child->all_entries[j] != NULL)
                 {
-                    // printf("hello %lld \n",j);
                     if (new_entry_inserted == false)
                     {
-                        // printf("2\n");
                         if (new_entry->LHV <= s[i]->child->all_entries[j]->LHV)
                         {
                             e_arr[k] = new_entry;
-                            // printf("1?\n");
                             new_entry_inserted = true;
                             k++;
                             j--;
-                            // printf("inside handleoverflow %lld\n",j);
                             continue;
                         }
-                        // printf("2\n");
                     }
-                    // printf("fkjwakdf %lld\n",i);
                     e_arr[k] = s[i]->child->all_entries[j];
                     s[i]->child->all_entries[j] = NULL;
                     k++;
@@ -324,7 +292,6 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
             int k = 0; // current entry in parent node
             for (int i = 0; i < no_of_entries; i++)
             {
-                // printf("%lld\n",k);
                 s[k]->child->all_entries[j] = e_arr[i];
                 if (e_arr[i]!=NULL && e_arr[i]->child != NULL)
                     e_arr[i]->child->parent = L;
@@ -355,7 +322,6 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
             int av = (no_of_entries) / (no_of_nodes + 1);
             int rem = (no_of_entries) % (no_of_nodes + 1);
             int rem2 = rem;
-            //printf("%lld %lld\n", av, rem);
             int i;
             int j = 0;
             int k = 0; // current entry in parent node
@@ -381,10 +347,6 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
                 s[i] = findMBR(s[i]->child);
                 s[i]->child->parent = L->parent;
             }
-            //printf("The old nodes are :\n");
-            //for(int i = 0; i < no_of_nodes; i++) {
-              //  printNode(s[i]->child);
-            //}
             j = 0;
             while (i < no_of_entries)
             {
@@ -393,8 +355,6 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
                 j++;
             }
             
-           // printf("Hello the new node is : ");
-            //printNode(new_node);
             return new_node;
         }
     }
@@ -820,22 +780,33 @@ int main()
         Point *point = createNewPoint(x, y); //creating a new point using x and y
         Rect *rect = createNewRect(*point); //creating a new rectangle using the newly created point
         insert(ht, *rect); //inserting the rectangle inside the Hilbert R tree
-        printf("Point taken is : (%lld %lld %lld)\n", x, y, calculate_hilbert_value(*rect));
-        //pre_order_traversal(ht->root, 0);
-        //printf("No of nodes inserted : %d\n", check);
-        check = 0;
     }
-    pre_order_traversal(ht->root, 0);
-    printf("No of data rectangles counted : %lld\n", check);
-    Point p1 = {856029, 730586}, p2 = {856029, 730586};
-    Rect re = {p1, p2};
-    Point p3 = {1, 1};
-    Rect re2 = {p3, p3};
-    search_wrapper(ht, re);
-    search_wrapper(ht, re2);
-    printf("%lld", hilbert_N);
     fclose(fp);
 
+    printf("Enter 1 for pre order traversal,\n 2 if you wish to search a point in the tree,\n 3 if you wish to exit : \n");
+    int c; scanf("%d", &c);
+
+    while(c != 3) {
+        if(c != 1 && c != 2) {
+            printf("Please try again :\n");
+        } else {
+            switch (c) {
+                case 1: 
+                    pre_order_traversal(ht->root, 0);
+                    printf("No of leaf nodes counted : %d\n", check);
+                    check = 0;
+                    break;
+                case 2:
+                    printf("Enter the point which you wish to search in the tree :\n");
+                    int x, y;
+                    scanf("%d %d", &x, &y);
+                    search_wrapper(ht, *createNewRect(*createNewPoint(x, y)));
+                    break;
+            }
+        }
+        printf("Enter 1 for pre order traversal, 2 if you wish to search a point in the tree, 3 if you wish to exit : \n");
+        scanf("%d", &c);
+    }
     return 0;
 
 }
