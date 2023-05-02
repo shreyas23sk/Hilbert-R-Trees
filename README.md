@@ -5,7 +5,7 @@ Problem Statement 2
 
 To execute the program, run the commands
 
-gcc -c hilbert.c
+gcc -c hilbert.c 
 gcc -o hrtree_exe hilbert.o
 ./hrtree_exe
 
