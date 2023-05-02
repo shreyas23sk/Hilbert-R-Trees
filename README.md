@@ -9,7 +9,7 @@ This repository contains our submission for the DSA assignment. <br /> The assig
 ## Running the Code
 To run the code, use the following commands
 ```python
-gcc -c DSA_Assignment_Group_17.c
+gcc -w DSA_Assignment_Group_17.c
 gcc -o hrtree_exe DSA_Assignment_Group_17.o
 ./hrtree_exe
 ```
