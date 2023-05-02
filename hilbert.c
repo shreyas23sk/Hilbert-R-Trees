@@ -729,7 +729,6 @@ void search_wrapper(HRT ht, Rect w) {
 void pre_order_traversal(NODE root, int j)
 {
     if(root == NULL) {
-        printf("End reached at level %lld\n", j);
         check++;
         return;
     }
@@ -737,7 +736,8 @@ void pre_order_traversal(NODE root, int j)
     {
         if (root->all_entries[i] != NULL)
         {
-            printf("inside ");
+            if(root->all_entries[i]->child != NULL) printf("Inside non leaf node ");
+            else printf("Inside leaf node ");
             ENTRY e = root->all_entries[i];
             printf("(%lld %lld), (%lld %lld), level %lld, node_no %lld\n",e->MBR.top_right.x, e->MBR.top_right.y, e->MBR.bottom_left.x, e->MBR.bottom_left.y, j, i);
             pre_order_traversal(e->child, j + 1);
