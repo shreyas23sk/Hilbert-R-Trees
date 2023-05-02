@@ -590,39 +590,44 @@ void insert(HRT ht, Rect r)
     // Step I4 : root splitting, handled in HandleOverflow
 }
 
-void rot(int n, int *x, int *y, ull rx, ull ry)
-{
-    if (ry == 0)
-    {
-        if (rx == 1)
-        {
-            *x = n - 1 - *x;
-            *y = n - 1 - *y;
-        }
-
-        // Swap x and y
-        int t = *x;
-        *x = *y;
-        *y = t;
-    }
-}
-
-ull xy2d(int n, int x, int y)
-{
-    ull rx, ry, s; ull d = 0;
-    for (s = n / 2; s > 0; s /= 2)
-    {
-        rx = (x & s) > 0;
-        ry = (y & s) > 0;
-        d += s * s * ((3 * rx) ^ ry);
-        rot(n, &x, &y, rx, ry);
-    }
-    return d;
-}
-
 ull calculate_hilbert_value(Rect r)
 {
-    return xy2d(hilbert_N, (r.top_right.x + r.bottom_left.x) / 2, (r.top_right.y + r.bottom_left.y) / 2);
+    int n = hilbert_N, x = (r.top_right.x + r.bottom_left.x) / 2, y = (r.top_right.y + r.bottom_left.y) / 2;
+    int bx, by; ull sq, d = 0;
+    for (sq = n / 2; sq > 0; sq /= 2)
+    {
+        bx = ((x & sq) > 0);
+        by = ((y & sq) > 0);
+        ull c = sq * sq; // assign the sub curve numbered 1 to c for the time being
+
+        // choose a sub-curve among the four curves depending on the binary values of x and y at the (s-bit)
+        if(bx == 0) {
+            if(by == 0) c *= 0;
+            else c *= 1;
+        } else {
+            if(by == 0) c *= 3;
+            else c *= 2;
+        }
+
+        d += c; // add to d the sub curve for the (s-bit)
+
+        // if by = 0 and bx = 1, flip across the diagonal that runs from top left to bottom right
+        // else if by = 0 and bx = 0, flip across the diagonal that runs from top right to bottom left
+        if (by == 0)
+        {
+            if (bx == 1)
+            {
+                x = n - 1 - x;
+                y = n - 1 - y;
+            }
+
+            // Swap x and y
+            int t = x;
+            x = y;
+            y = t;
+        }
+    }
+    return d;
 }
 
 bool isLeaf(NODE n)
@@ -815,7 +820,7 @@ int main()
         Point *point = createNewPoint(x, y); //creating a new point using x and y
         Rect *rect = createNewRect(*point); //creating a new rectangle using the newly created point
         insert(ht, *rect); //inserting the rectangle inside the Hilbert R tree
-        //printf("Point taken is : (%lld %lld %lld)\n", x, y, calculate_hilbert_value(*rect));
+        printf("Point taken is : (%lld %lld %lld)\n", x, y, calculate_hilbert_value(*rect));
         //pre_order_traversal(ht->root, 0);
         //printf("No of nodes inserted : %d\n", check);
         check = 0;
@@ -828,6 +833,7 @@ int main()
     Rect re2 = {p3, p3};
     search_wrapper(ht, re);
     search_wrapper(ht, re2);
+    printf("%lld", hilbert_N);
     fclose(fp);
 
     return 0;
