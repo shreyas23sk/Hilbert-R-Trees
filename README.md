@@ -1,15 +1,23 @@
-# Hilbert-R-Trees
-CS F211 Assignment
-Group Number 17
-Problem Statement 2
+# DSA Assignment
+## CS F211 - Group 17 - Problem 2 - Hilbert R Trees
+This repository contains our submission for the DSA assignment. <br /> The assignment consists of implementation of the data structure Hilbert-R-Trees.
 
-To execute the program, switch to the directory containing the c file and run the commands
+## Files
+- DSA_Assignment_Group_17.c
+- Group_Members.txt
 
-gcc -c hilbert.c  &nbsp;
+## Running the Code
+To run the code, use the following commands
+```python
+gcc -c DSA_Assignment_Group_17.c
+gcc -o hrtree_exe DSA_Assignment_Group_17.o
+./hrtree_exe
+```
 
-gcc -o hrtree_exe hilbert.o &nbsp;
+Enter the name of the data file when prompted
 
-./hrtree_exe &nbsp;
+## Approach and Algorithm
+Explained in the ppt file submitted alongside the code.
 
-and enter the name of the .txt which contains the points to be inserted into the Hilbert-R-Tree.
-The .txt file MUST be in the same directory as the c file
+## References
+[Hilbert R-Tree: An Improved R-Tree Using Fractals](https://www.cs.cmu.edu/~christos/PUBLICATIONS.OLDER/vldb94.pdf)
