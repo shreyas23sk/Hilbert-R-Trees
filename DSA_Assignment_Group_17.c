@@ -40,6 +40,7 @@ struct Entry
     ull LHV;    // largest hilbert value of data rectangles of the subtree (NOT MBR)
 };
 typedef struct Entry *ENTRY;
+
 struct Node
 {
     NODE parent; // the node which contains the entry which is parent to the current node
@@ -63,9 +64,6 @@ ENTRY findMBR(NODE);
 bool intersects(Rect, Rect);
 void printRect(Rect);
 
-// obtain the LHV of a particular entry
-// by taking the maximum LHV from the entries of the child node
-void set_lhv(ENTRY);
 
 // initializing functions
 NODE createNewNodeOfTree();
@@ -99,9 +97,10 @@ int count_entries(NODE n)
     return 4;
 }
 
+// returns a new Entry whose MBR LHV is calculated according to the 
+// entries of node P and whose child is node P 
 ENTRY findMBR(NODE P)
 {
-    // printf("inside findMBR\n");
     ENTRY e = (ENTRY)malloc(sizeof(Entry));
     int minx = INT_MAX, maxx = INT_MIN, miny = INT_MAX, maxy = INT_MIN;
     ull lhv = 0;
@@ -128,6 +127,7 @@ ENTRY findMBR(NODE P)
     return e;
 }
 
+// it returns a leaf node in which we have to insert a rectangle r
 NODE chooseLeaf(HRT ht, Rect r, ull h)
 {
     // Step C1: Initialize N to root node
@@ -353,7 +353,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
             }
 
             for (int i = 0; i < no_of_nodes; i++)
-            { // NON TESTING CODE DO NOT DELETE
+            {
                 s[i] = findMBR(s[i]->child);
                 s[i]->child->parent = L->parent;
             }
@@ -610,6 +610,7 @@ ull calculate_hilbert_value(Rect r)
     return d;
 }
 
+// returns true if the given node is a leaf node otherwise returns false
 bool isLeaf(NODE n)
 {
     for (int i = 0; i < 4; i++)
@@ -629,29 +630,7 @@ bool isLeaf(NODE n)
     return true;
 }
 
-void set_lhv(ENTRY e)
-{ // UNTESTED
-    NODE n = e->child;
-
-    if (n == NULL)
-    {
-        e->LHV = calculate_hilbert_value(e->MBR);
-    }
-    else
-    {
-        int new_lhv = 0;
-        for (int i = 0; i < 4; i++)
-        {
-            if (n->all_entries[i]->LHV > new_lhv)
-            {
-                new_lhv = n->all_entries[i]->LHV;
-            }
-        }
-
-        e->LHV = new_lhv;
-    }
-}
-
+// returns true if the given rectangles intersect with each other else returns false
 bool intersects(Rect r, Rect w)
 {
     // Check if the rectangles do not intersect
@@ -668,6 +647,7 @@ void printRect(Rect r)
     printf("(%d %d) (%d %d)\n", r.bottom_left.x, r.bottom_left.y, r.top_right.x, r.top_right.y);
 }
 
+// it prints all the leaf nodes which intersect with the rectangle w 
 void search(NODE root, Rect w, int *p)
 {
     // S2 : Report all entries at leaf node level who intersect with the target rectangle as candidates
@@ -704,6 +684,7 @@ void search(NODE root, Rect w, int *p)
     }
 }
 
+// wrapper function for the search function
 void search_wrapper(HRT ht, Rect w)
 {
     int a = 0;
@@ -720,6 +701,7 @@ void search_wrapper(HRT ht, Rect w)
     printf("\n");
 }
 
+// prints the nodes, levels and the node type in the pre order fashion
 void pre_order_traversal(NODE root, int j)
 {
     if (root == NULL)
@@ -815,6 +797,7 @@ int main()
         Point *point = createNewPoint(x, y); // creating a new point using x and y
         Rect *rect = createNewRect(*point);  // creating a new rectangle using the newly created point
         insert(ht, *rect);                   // inserting the rectangle inside the Hilbert R tree
+        printf("The point (%d,%d) of the file %s has been inserted \n", x,y,str);
     }
     fclose(fp);
 
@@ -834,7 +817,7 @@ int main()
             {
             case 1:
                 pre_order_traversal(ht->root, 0);
-                printf("No of leaf nodes counted : %d\n", check);
+                // printf("No of leaf nodes counted : %d\n", check);
                 check = 0;
                 break;
             case 2:
