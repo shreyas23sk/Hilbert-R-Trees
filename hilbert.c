@@ -4,9 +4,11 @@
 #define MIN(a, b) a < b ? a : b
 #define MAX(a, b) a > b ? a : b
 
+// global variables
 int check = 0;
 int hilbert_N = 0;
 
+// bool declaration
 typedef enum
 {
     false,
@@ -15,7 +17,7 @@ typedef enum
 
 typedef unsigned long long ull;
 
-typedef struct Point Point;
+typedef struct Point Point; // Point in rectangle
 struct Point{
     int x;
     int y;
@@ -31,7 +33,7 @@ typedef struct Node* NODE;
 typedef struct Entry Entry;
 struct Entry {
     Rect MBR; // minimum bounding rectangle for all the child nodes of this entry
-    NODE child;
+    NODE child; // points to the node whose MBRs are enclosed by this entry
     ull LHV; // largest hilbert value of data rectangles of the subtree (NOT MBR)
 };
 typedef struct Entry* ENTRY;
@@ -50,19 +52,35 @@ struct HRTree{
 // but data rectangles here are only single 2D points
 ull calculate_hilbert_value(Rect);
 
+// helper functions
 bool isLeaf(NODE);
+void printNode(NODE);
+void printChildNodes(NODE);
+int count_entries(NODE);
+ENTRY findMBR(NODE);
+bool intersects(Rect, Rect);
+void printRect(Rect);
 
 // obtain the LHV of a particular entry 
 //by taking the maximum LHV from the entries of the child node
 void set_lhv(ENTRY);
 
-// since all leaf nodes in the structure to be implemented are degenerate rectangles,
-// we can simply return the Point if found, Nint if not.
-void search(NODE, Rect, int*);
+
+// initializing functions
 NODE createNewNodeOfTree();
+Rect* createNewRect(Point);
+Point* createNewPoint(int, int);
+
+// search functions
+// search takes in a node, a rect and an accumulator variable initialized in search_wrapper
+void search(NODE, Rect, int*);
+void search_wrapper(HRT, Rect);
+
+// pre order traversal
+// takes an accumulator variable to print the level of the current ENTRY in the tree
+void pre_order_traversal(NODE, int);
 
 // insertion functions
-
 // finds a leaf node with a LHV which is over the the HV of the rect and is minimum
 NODE chooseLeaf(HRT, Rect, ull);
 NODE HandleOverflow(HRT,NODE, NODE, Rect, ull);
@@ -135,15 +153,15 @@ ENTRY findMBR(NODE P)
 
 NODE chooseLeaf(HRT ht, Rect r, ull h)
 {
+    // Step C1: Initialize N to root node
     NODE n = ht->root;
 
-    while (isLeaf(n) == false)
+    while (isLeaf(n) == false) // C2: If n is leaf node return n
     {
-        //printf("inside chooseLeaf\n");
         NODE temp = NULL;
         NODE last_non_NULL_node = NULL;
         ull min_lhv = (unsigned long long) 1e15;
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)  // C3 : Choose child node of entry with minimum LHV greater than h 
         {
             if (n->all_entries[i] != NULL)
             {
@@ -177,7 +195,9 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
     new_entry->child = n;
     new_entry->LHV = h;
     new_entry->MBR = r;
+
     // Here root is splitting So we are handling this case seperately to create a new root
+    // Step I4 of the insertion algorithm : If the root has been split, create a new root to enclose split nodes
     if (L->parent == NULL)
     {
         //printf("inside root splitting\n");
@@ -226,7 +246,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
     }
     else
     {
-        //printf("Inside non-root node splitting\n");
+        // Step H1: s is a set of entries whose children are the sibling nodes of the leaf node
         ENTRY *s = L->parent->all_entries;
         int no_of_entries = 1; // node to be inserted;
         int no_of_nodes = 0;
@@ -242,8 +262,7 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
             no_of_nodes += (s[i] != NULL);
         }
 
-        //printf("%lld, %lld\n", no_of_entries, no_of_nodes);
-
+        // Step H2: new_entry is added to the existing set of entries from sibling nodes
         ENTRY *e_arr = (ENTRY *)malloc(sizeof(ENTRY) * no_of_entries);
 
         int i = 0, j = 0, k = 0; // i - counter for e_arr pointer,
@@ -281,7 +300,9 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
         if(new_entry_inserted == false) {
             e_arr[no_of_entries - 1] = new_entry;
         }
-        // printf("jfgkf");
+
+        // Step H3: If any of the sibling nodes are not full than distribute e_arr evenly among the existing
+        // sibling nodes
         if (no_of_entries <= (no_of_nodes)*4)
         {
             // evenly distribute existing entries into existing nodes
@@ -312,6 +333,8 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
 
             return NULL;
         }
+        // Step H4: Otherwise create and return a new node, with all the entries in e_arr distributed 
+        // evenly among the existing nodes in s + new_node
         else
         {
             // create new node
@@ -369,17 +392,20 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
 
 void AdjustTree(HRT ht, NODE S, NODE NN)
 {
+    // Step A1:  If reached root level, stop
     if (S == NULL)
         return;
     else
-    {
-        //printf("inside adjustree\n");
+    {   
+        // Step A2: Propagate node split upwards
+
+        // Here, S = Np
         NODE PP = NULL;
-        if (NN != NULL)
+        if (NN != NULL) 
         {
             ENTRY entry_to_be_inserted = findMBR(NN);
             NODE leaf = S;
-            if (leaf->all_entries[3] == NULL)
+            if (leaf->all_entries[3] == NULL) // If S has room, insert NN in S according to it's hilbert value
             {
                 for (int i = 0; i < 4; i++)
                 {
@@ -412,10 +438,12 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
                 }
             }
             else {
-                //printf("PP Overflow\n");
+                // If S is split, initialize PP with the new node
                 PP = HandleOverflow(ht, S, NN, entry_to_be_inserted->MBR, entry_to_be_inserted->LHV);
             }
         }
+
+        // Step A3: adjust the MBRs and LHVs of the nodes in the parent level
         for (int i = 0; i < 4; i++)
         {
             ENTRY e = S->all_entries[i];
@@ -474,6 +502,7 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
                 }
             }
         }
+        // Step A4: Move up to the next level and repeat from A1
         AdjustTree(ht, S->parent, PP);
     }
 }
@@ -481,7 +510,6 @@ void AdjustTree(HRT ht, NODE S, NODE NN)
 void insert(HRT ht, Rect r)
 {
     ull h = calculate_hilbert_value(r);
-    //printf("inside insert %lld\n", h);
     if (ht->root->all_entries[0] == NULL)
     {
         ENTRY e = (ENTRY)malloc(sizeof(Entry));
@@ -491,8 +519,11 @@ void insert(HRT ht, Rect r)
         ht->root->all_entries[0] = e;
         return;
     }
+
+    // Step I1 : Find the appropriate leaf node
     NODE leaf = chooseLeaf(ht, r, h);
 
+    // Step I2 : If leaf node has room, insert new entry in order of it's hilbert value
     if (leaf->all_entries[3] == NULL)
     {
         for (int i = 0; i < 4; i++)
@@ -530,10 +561,14 @@ void insert(HRT ht, Rect r)
         }
         AdjustTree(ht, leaf->parent, NULL);
     }
+    // Step I2 (contd.) : Else invoke HandleOverflow to return new node if split was inevitable
     else
     {
         NODE leaf2 = HandleOverflow(ht, leaf, NULL, r, h);
         NODE Np = leaf->parent;
+        
+        // Step I3 : Propagate changes upward in the tree by forming S and calling AdjustTree
+        // NOTE :- here, S is all of the child nodes of the entries in Np, therefore Np is passed as S
         if (leaf2 == NULL)
             AdjustTree(ht, Np, NULL);
         else
@@ -541,6 +576,8 @@ void insert(HRT ht, Rect r)
             AdjustTree(ht, Np, leaf2);
         }
     }
+
+    // Step I4 : root splitting, handled in HandleOverflow
 }
 
 void rot(int n, int *x, int *y, ull rx, ull ry)
@@ -637,6 +674,7 @@ void printRect(Rect r) {
 
 void search(NODE root, Rect w, int *p)
 {   
+    // S2 : Report all entries at leaf node level who intersect with the target rectangle as candidates
     if(isLeaf(root)) {
         for(int i = 0; i < 4; i++) {
             if(root->all_entries[i] != NULL) {
@@ -648,6 +686,8 @@ void search(NODE root, Rect w, int *p)
         }
         return;
     }
+    
+    // S1 : invoke search for every entry whose MBR intersects with the query rectangle
     for (int i = 0; i < 4; i++)
     {
         if (root->all_entries[i] != NULL)
