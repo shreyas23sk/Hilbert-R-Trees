@@ -830,7 +830,6 @@ int main()
     search_wrapper(ht, re2);
     fclose(fp);
 
-    printf("%lld", hilbert_N);
     return 0;
 
 }
