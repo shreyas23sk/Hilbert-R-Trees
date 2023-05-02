@@ -301,9 +301,9 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
             int k = 0; // current entry in parent node
             for (int i = 0; i < no_of_entries; i++)
             {
-                s[k]->child->all_entries[j] = e_arr[i];
                 if (e_arr[i] != NULL && e_arr[i]->child != NULL)
                     e_arr[i]->child->parent = L;
+                L->parent->all_entries[k]->child->all_entries[j] = e_arr[i];
                 j++;
                 if (j >= av)
                 {
@@ -336,9 +336,9 @@ NODE HandleOverflow(HRT ht, NODE L, NODE n, Rect r, ull h)
             int k = 0; // current entry in parent node
             for (i = 0; i < (no_of_nodes * av + rem2); i++)
             {
-                s[k]->child->all_entries[j] = e_arr[i];
                 if (e_arr[i] != NULL && e_arr[i]->child != NULL)
                     e_arr[i]->child->parent = L;
+                L->parent->all_entries[k]->child->all_entries[j] = e_arr[i];
                 j++;
                 if (j >= av)
                 {
@@ -633,13 +633,28 @@ bool isLeaf(NODE n)
 // returns true if the given rectangles intersect with each other else returns false
 bool intersects(Rect r, Rect w)
 {
-    // Check if the rectangles do not intersect
-    if (r.top_right.x < w.bottom_left.x || r.bottom_left.x > w.top_right.x || r.top_right.y < w.bottom_left.y || r.bottom_left.y > w.top_right.y)
+    int rxmax = r.top_right.x, rxmin = r.bottom_left.x;
+    int wxmax = w.top_right.x, wxmin = w.bottom_left.x;
+
+    int rymax = r.top_right.y, rymin = r.bottom_left.y;
+    int wymax = w.top_right.y, wymin = w.bottom_left.y;
+    // Check if the rectangles intersect
+    if ((
+        (rxmin <= wxmin && rxmax <= wxmax) ||
+        (rxmin >= wxmin && rxmax >= wxmax) ||
+        (rxmin <= wxmin && wxmax <= rxmax) ||
+        (wxmin <= rxmin && rxmax <= wxmax)
+    ) && ( 
+        (rymin <= wymin && rymax <= wymin) ||
+        (rymin >= wymin && rymax >= wymax) ||
+        (rymin <= wymin && wymax <= rymax) ||
+        (wymin <= rymin && rymax <= wymax)
+    ))
     {
-        return false;
+        return true;
     }
     // If the rectangles intersect, return true
-    return true;
+    else return false;
 }
 
 void printRect(Rect r)
@@ -657,7 +672,8 @@ void search(NODE root, Rect w, int *p)
         {
             if (root->all_entries[i] != NULL)
             {
-                if (intersects(root->all_entries[i]->MBR, w))
+                ENTRY e = root->all_entries[i];
+                if (e->MBR.top_right.x == w.top_right.x && e->MBR.top_right.y == w.top_right.y)
                 {
                     (*p)++;
                     printRect(root->all_entries[i]->MBR);
@@ -706,7 +722,6 @@ void pre_order_traversal(NODE root, int j)
 {
     if (root == NULL)
     {
-        check++;
         return;
     }
     for (int i = 0; i < 4; i++)
@@ -719,6 +734,7 @@ void pre_order_traversal(NODE root, int j)
                 printf("Inside leaf node ");
             ENTRY e = root->all_entries[i];
             printf("(%lld %lld), (%lld %lld), level %lld, node_no %lld\n", e->MBR.top_right.x, e->MBR.top_right.y, e->MBR.bottom_left.x, e->MBR.bottom_left.y, j, i);
+            if(e->child == NULL) check++;
             pre_order_traversal(e->child, j + 1);
         }
     }
@@ -817,7 +833,7 @@ int main()
             {
             case 1:
                 pre_order_traversal(ht->root, 0);
-                // printf("No of leaf nodes counted : %d\n", check);
+                printf("No of leaf nodes counted : %d\n", check);
                 check = 0;
                 break;
             case 2:
